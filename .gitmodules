@@ -1,0 +1,3 @@
+[submodule "openal-test/extern/dr_libs"]
+	path = openal-test/extern/dr_libs
+	url = https://github.com/mackron/dr_libs
