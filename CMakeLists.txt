@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(audio-stats)
+project(audio-playground)
 
 # Compiler/Tool requirements
 set( CMAKE_CXX_STANDARD 20 )
@@ -22,7 +22,7 @@ include_directories(
 #link_directories( 
 #)
 
-add_executable( audio-stats
+add_executable( ${PROJECT_NAME}
   main.cpp
   openalengine.h
   openalengine.cpp
@@ -34,6 +34,6 @@ add_executable( audio-stats
   #audio/audiomp3.cpp
   )
 
-target_link_libraries( audio-stats
+target_link_libraries( ${PROJECT_NAME}
   ${OPENAL_LIBRARY}
 )
