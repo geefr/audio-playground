@@ -34,6 +34,7 @@ ShaderProgram();
 ~ShaderProgram();
 
 void addShader( GLenum shaderType, std::string shaderFileName );
+void addShaderFromSrc( GLenum shaderType, std::string shaderSource, std::string shaderName );
 
 /// Compile/link the shader
 void init() const;

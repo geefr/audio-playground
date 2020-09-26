@@ -7,6 +7,9 @@
 #include "audioloaders/audio.h"
 #include "shadertoy/shadertoyengine.h"
 
+// TODO: These are placeholder shaders - should be talking to the shadertoy rest api to fetch these
+#include "shadertoy/shadertoyshaders.h"
+
 #define GL_GLEXT_PROTOTYPES
 #include <GLFW/glfw3.h>
 
@@ -92,9 +95,31 @@ try
     }
     std::string filename(argv[1]);
 
+    // Audio playback engine - OpenAL is overkill for what's needed, but simple to use
     std::unique_ptr<OpenALEngine> e(new OpenALEngine());
 
-    // Load the noise
+    glfwSetErrorCallback(errorCallback);
+    if( !glfwInit() ) quit("Failed to init glfw");
+
+    // Let's try for GL 3.3, should be fine on almost everything now (it is 2020 after all)
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_SAMPLES, 8);
+    auto window = glfwCreateWindow(800, 600, "OpenGL-Visualiser", nullptr, nullptr);
+    if( !window ) quit("Failed to init window");
+
+    glfwMakeContextCurrent(window);
+    glfwSetKeyCallback(window, keyCallback);
+    glfwSetMouseButtonCallback(window, mouseButtonCallback);
+    glfwSetScrollCallback(window, scrollCallback);
+
+    glfwSwapInterval(1);
+
+    // Setup the rendering engine
+    ShaderToyEngine engine;
+    engine.init(ShaderToyShaders::instance.ShaderToyBodyIQRayMarchPrimitives);
+
+    // Load audio
     std::cerr << "Loading...: " << filename << std::endl;
     auto audio = Audio::open(filename);
     if( !audio || audio->data() == nullptr ) {
@@ -117,26 +142,6 @@ try
     e->playSourceAndWait(src);
     */
 
-    glfwSetErrorCallback(errorCallback);
-    if( !glfwInit() ) quit("Failed to init glfw");
-
-    // Let's try for GL 3.3, should be fine on almost everything now (it is 2020 after all)
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    auto window = glfwCreateWindow(800, 600, "OpenGL-Visualiser", nullptr, nullptr);
-    if( !window ) quit("Failed to init window");
-
-    glfwMakeContextCurrent(window);
-    glfwSetKeyCallback(window, keyCallback);
-    glfwSetMouseButtonCallback(window, mouseButtonCallback);
-    glfwSetScrollCallback(window, scrollCallback);
-
-    glfwSwapInterval(1);
-
-    // Setup the rendering engine
-    ShaderToyEngine engine("TODO: File name here");
-    engine.init();
-
     auto width = 0;
     auto height = 0;
     while(!glfwWindowShouldClose(window))
@@ -150,11 +155,12 @@ try
         engine.update();
 
         // Hack, should use framebuffersizecallback ;)
-        auto newWidth = 0, newHeight = 0;
-        glfwGetFramebufferSize(window, &newWidth, &newHeight);
+        glfwGetFramebufferSize(window, &width, &height);
 
         // Render to screen
         engine.render(width, height);
+
+        glfwSwapBuffers(window);
     }
 
     // TODO: Being naughty here and not deleting the OpenGL resources :/

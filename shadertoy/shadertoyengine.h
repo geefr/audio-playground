@@ -31,9 +31,14 @@ class ShaderToyEngine
 public:
     /**
      * Engine constructor
-     * @param shaderfile A shadertoy shader snippet, containing a mainImage method
      */
-    ShaderToyEngine( std::string shaderfile );
+    ShaderToyEngine();
+
+    /**
+     * Initialise the engine
+     * @param shaderToyBodySrc A shadertoy shader, containing a mainImage function
+     */
+    void init(std::string shaderToyBodySrc);
 
     /// Generic vertex definition for graphical shaders
     struct VertexDef
@@ -52,8 +57,6 @@ public:
         GLuint vbo;
         GLuint numVerts = 0;
     };
-
-    void init();
 
     /**
      * Update the engine/scene graph state
@@ -124,6 +127,7 @@ private:
     std::chrono::time_point<std::chrono::high_resolution_clock> mTimeStart;
     std::chrono::time_point<std::chrono::high_resolution_clock> mTimeCurrent;
     float mTimeDelta = 0.f;
+    uint32_t mFrame = 0;
 
     vec4 mOrthoSpace = { -10.f,10.f,-10.f,10.f };
 

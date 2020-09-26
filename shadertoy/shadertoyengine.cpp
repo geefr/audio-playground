@@ -1,6 +1,8 @@
 #include "shadertoyengine.h"
 #include <functional>
 
+#include "shadertoyshaders.h"
+
 void GLAPIENTRY
 GLErrorCallback( [[maybe_unused]] GLenum source,
                   GLenum type,
@@ -92,12 +94,12 @@ void ShaderToyEngine::printMat4x4(mat4x4 mat, std::string name)
     }
 }
 
-ShaderToyEngine::ShaderToyEngine( std::string shaderfile )
+ShaderToyEngine::ShaderToyEngine(  )
 {
   // TODO: Load shadertoy src, inject into frag shader
 }
 
-void ShaderToyEngine::init()
+void ShaderToyEngine::init(std::string shaderToyBodySrc)
 {
 #ifdef _WIN32
     GLenum err = glewInit();
@@ -120,13 +122,12 @@ void ShaderToyEngine::init()
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(GLErrorCallback, nullptr);
 
-    glEnable(GL_DEPTH_TEST);
+    depthTest(true);
 
     glEnable(GL_CULL_FACE);
     glFrontFace(GL_CCW);
     glCullFace(GL_BACK);
 
-    depthTest(true);
     alphaBlending(mEnableAlpha);
     clearColor(mClearColor);
     MSAA(mMSAA);
@@ -142,20 +143,12 @@ void ShaderToyEngine::init()
 
     // Let's load some shaders
     // The shader used to display the final scene
-    // TODO: need to load shaders here and stuff
-    /*
-    std::shared_ptr<ShaderProgram> display(new ShaderProgram());
-    display->addShader(GL_VERTEX_SHADER, mDataDir + "shaders/display.vert");
-    display->addShader(GL_FRAGMENT_SHADER, mDataDir + "shaders/display.frag");
-    mShaders["display"] = display;
-    display->init();
+    std::shared_ptr<ShaderProgram> toy(new ShaderProgram());
+    toy->addShaderFromSrc(GL_VERTEX_SHADER, ShaderToyShaders::instance.ShaderToyBoilerPlateVert, "Shadertoy Boilerplate Vertex");
+    std::string fragSrc = ShaderToyShaders::instance.ShaderToyBoilerPlateFragHeader + shaderToyBodySrc + ShaderToyShaders::instance.ShaderToyBoilerPlateFragFooter;
+    toy->addShaderFromSrc(GL_FRAGMENT_SHADER, fragSrc, "Shadertoy Fragment");
+    mShaders["shadertoy"] = toy; // TODO: Should store all available shaders here
 
-    std::shared_ptr<ShaderProgram> flat(new ShaderProgram());
-    flat->addShader(GL_VERTEX_SHADER, mDataDir + "shaders/flatshading.vert");
-    flat->addShader(GL_FRAGMENT_SHADER, mDataDir + "shaders/flatshading.frag");
-    mShaders["flatshading"] = flat;
-    flat->init();
-*/
     initRenderPasses();
 
     mTimeStart = std::chrono::high_resolution_clock::now();
@@ -167,7 +160,6 @@ void ShaderToyEngine::update()
   std::chrono::time_point<std::chrono::high_resolution_clock> current = std::chrono::high_resolution_clock::now();
   mTimeDelta = ((double)(current - mTimeCurrent).count()) / 1.0e9;
   mTimeCurrent = current;
-  // mScene->update(*this, current, delta);
 }
 
 void ShaderToyEngine::render(float width, float height, const FrameBuffer* framebuffer)
@@ -191,21 +183,11 @@ void ShaderToyEngine::render(float width, float height, const FrameBuffer* frame
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable(GL_DEPTH_TEST);
 
-
-  // TODO: Do simulation/draw passes to update rendering data
-
   // Display the results to the display
   renderPassDisplay();
 
-  /*
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, catTexture);
-  glUniform1i(mShader.uniform("texture0"), 0);
-  glUniform1i(mShader.uniform("enableTexture0"), false);
-  */
-  // mScene->node()->render(mViewMatrix, mProjectionMatrix);
-
   if (framebuffer) framebuffer->resolve();
+  mFrame++;
 }
 
 void ShaderToyEngine::render(const FrameBuffer* framebuffer)
@@ -226,6 +208,9 @@ void ShaderToyEngine::renderLineImmediate( vec3 start, vec3 end, vec4 colour, in
   glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(v.size() * sizeof(VertexDef)), v.data(), GL_STATIC_DRAW);
 
   auto shader = mShaders["flatshading"];
+  if( !shader ) {
+    ShaderToyEngine::quit("Failed to lookup shader for renderLineImmediate");
+  }
   glUseProgram(shader->id());
 
   shader->regAttribute("vertCoord", 3, GL_FLOAT, GL_FALSE, sizeof(VertexDef), reinterpret_cast<const void*>(offsetof(VertexDef,coord)));
@@ -255,13 +240,14 @@ void ShaderToyEngine::renderLineImmediate( vec3 start, vec3 end, vec4 colour, in
 }
 
 void ShaderToyEngine::initRenderPasses() {
-  // TODO: Simulation/update passes
-
   // Display pass
   glGenVertexArrays(1, &mRenderPassDisplay.vao);
   glBindVertexArray(mRenderPassDisplay.vao);
   glGenBuffers(1, &mRenderPassDisplay.vbo);
-  auto displayShader = mShaders["display"];
+  auto displayShader = mShaders["shadertoy"];
+  if( !displayShader ) {
+    ShaderToyEngine::quit("Failed to lookup shader for initRenderPasses");
+  }
   displayShader->id(); // Ensure shader has cached uniform IDs and otherwise initialised
 
   auto left = -1.f;
@@ -285,32 +271,45 @@ void ShaderToyEngine::initRenderPasses() {
 
   glUseProgram(displayShader->id());
   displayShader->regAttribute("vertCoord", 3, GL_FLOAT, GL_FALSE, sizeof(VertexDef), reinterpret_cast<const void*>(offsetof(VertexDef,coord)));
-  // If pointer != null then GL_ARRAY_BUFFER has to be bound
   displayShader->regAttribute("vertTexCoord", 2, GL_FLOAT, GL_FALSE, sizeof(VertexDef), reinterpret_cast<const void*>(offsetof(VertexDef,texCoord)));
 
-  displayShader->regUniform("projectionMatrix");
-  displayShader->regUniform("numSpheres");
+  displayShader->regUniform("iResolution");
+  displayShader->regUniform("iTime");
+  displayShader->regUniform("iTimeDelta");
+  displayShader->regUniform("iFrame");
+  displayShader->regUniform("iChannelTime[0]");
+  displayShader->regUniform("iChannelTime[1]");
+  displayShader->regUniform("iChannelTime[2]");
+  displayShader->regUniform("iChannelTime[3]");
+  displayShader->regUniform("iMouse");
+  displayShader->regUniform("iDate");
+  displayShader->regUniform("iSampleRate");
+  // uniform vec3      iChannelResolution[4]
+  // uniform samplerXX iChanneli
 }
 
 void ShaderToyEngine::renderPassDisplay() {
-  auto shader = mShaders["display"];
+  auto shader = mShaders["shadertoy"];
+  if( !shader ) {
+    ShaderToyEngine::quit("Failed to lookup shader for renderPassDisplay");
+  }
 
   glBindVertexArray(mRenderPassDisplay.vao);
   glUseProgram(shader->id());
   // TODO: Bind shader resources (if needed, should be setup in vao already)
 
-  glUniformMatrix4fv(shader->uniform("projectionMatrix"), 1, GL_FALSE, value_ptr(mProjectionMatrix));
+  glUniform3f(shader->uniform("iResolution"), mWidth, mHeight, 1.f);
+  glUniform1f(shader->uniform("iTime"), secondsSinceInit());
+  glUniform1f(shader->uniform("iTimeDelta"), mTimeDelta);
+  glUniform1i(shader->uniform("iFrame"), mFrame);
 
-//  glUniform1f(shader->uniform("numSpheres"), static_cast<float>(mGeometry.size()));
-//  for( auto i = 0; i < mGeometry.size(); ++i ) {
-//    auto& s = mGeometry[i];
-//    glUniform4f(shader->uniform("spheres[" + std::to_string(i) + "]"),
-//      s.origin.x,
-//      s.origin.y,
-//      s.origin.z,
-//      s.radius);
-//    glUniform4fv(shader->uniform("sphereDiffuseColour[" + std::to_string(i) + "]"), 1, value_ptr(s.diffuseColour));
-//  }
+//  displayShader->regUniform("iChannelTime[0]");
+//  displayShader->regUniform("iChannelTime[1]");
+//  displayShader->regUniform("iChannelTime[2]");
+//  displayShader->regUniform("iChannelTime[3]");
+//  displayShader->regUniform("iMouse");
+//  displayShader->regUniform("iDate");
+//  displayShader->regUniform("iSampleRate");
 
   glDrawArrays(GL_TRIANGLES, 0, mRenderPassDisplay.numVerts);
 }

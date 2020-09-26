@@ -30,6 +30,11 @@
         std::string shaderSource( (std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
         //std::cerr << "Loaded shader source: " << path << "\n" << shaderSource << std::endl;
 
+        return addShaderFromSrc(shaderType, shaderSource, shaderFileName);
+    }
+
+    void ShaderProgram::addShaderFromSrc( GLenum shaderType, std::string shaderSource, std::string shaderName ) {
+
         auto shader = glCreateShader(shaderType);
         auto* srcPtr = shaderSource.c_str();
         glShaderSource(shader, 1, &srcPtr, nullptr);
@@ -46,7 +51,7 @@
             glDeleteShader(shader);
             if( !log.empty() )
             {
-              throw std::runtime_error("Failed to compile shader: " + shaderFileName + "\n" + std::string(reinterpret_cast<const char*>(&log[0])));
+              throw std::runtime_error("Failed to compile shader: " + shaderName + "\n" + std::string(reinterpret_cast<const char*>(&log[0])));
             }
             else
             {

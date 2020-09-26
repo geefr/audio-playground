@@ -9,6 +9,8 @@ include_directories(
 add_library( shadertoy STATIC
   shadertoyengine.h
   shadertoyengine.cpp
+  shadertoyshaders.h
+  shadertoyshaders.cpp
   shaderprogram.h
   shaderprogram.cpp
   framebuffer.h
