@@ -13,5 +13,6 @@ endif()
 
 add_subdirectory( audioloaders )
 add_subdirectory( openalengine )
+add_subdirectory( shadertoy )
 add_subdirectory( tests )
 
