@@ -1,16 +1,16 @@
-#include "engine.h"
+#include "openalengine.h"
 #include <stdexcept>
 #include <iostream>
 
-Engine::Engine() {
+OpenALEngine::OpenALEngine() {
   openDevice();
 }
 
-Engine::~Engine() {
+OpenALEngine::~OpenALEngine() {
   closeDevice();
 }
 
-std::shared_ptr<Engine::Buffer> Engine::createBuffer( uint8_t numChannels, uint32_t sampleRate, const int16_t* data, size_t dataSize ) {
+std::shared_ptr<OpenALEngine::Buffer> OpenALEngine::createBuffer( uint8_t numChannels, uint32_t sampleRate, const int16_t* data, size_t dataSize ) {
   ALenum format;
 
   if( numChannels == 1 ) format = AL_FORMAT_MONO16;
@@ -32,7 +32,16 @@ std::shared_ptr<Engine::Buffer> Engine::createBuffer( uint8_t numChannels, uint3
   return b;
 }
 
-std::shared_ptr<Engine::Source> Engine::createSource() {
+std::shared_ptr<OpenALEngine::Buffer> OpenALEngine::createBuffer( Audio& audio ) {
+  return createBuffer(
+        audio.numChannels(),
+        audio.sampleRate(),
+        audio.data(),
+        audio.dataSize()
+  );
+}
+
+std::shared_ptr<OpenALEngine::Source> OpenALEngine::createSource() {
   std::shared_ptr<Source> s(new Source());
 
   // Allocate
@@ -50,12 +59,12 @@ std::shared_ptr<Engine::Source> Engine::createSource() {
   return s;
 }
 
-void Engine::bindBufferToSource(std::shared_ptr<Source>& source, std::shared_ptr<Buffer>& buffer) {
+void OpenALEngine::bindBufferToSource(std::shared_ptr<Source>& source, std::shared_ptr<Buffer>& buffer) {
   alSourcei(source->id, AL_BUFFER, buffer->id);
   checkError("Bind buffer to source");
 }
 
-void Engine::playSourceAndWait(std::shared_ptr<Source>& source) {
+void OpenALEngine::playSourceAndWait(std::shared_ptr<Source>& source) {
   alSourcePlay(source->id);
   checkError("Play source and wait");
   
@@ -66,7 +75,7 @@ void Engine::playSourceAndWait(std::shared_ptr<Source>& source) {
   }
 }
 
-void Engine::openDevice() {
+void OpenALEngine::openDevice() {
   mDevice = alcOpenDevice(nullptr);
   if( !mDevice ) {
     throw std::runtime_error("Failed to create OpenAL device");
@@ -81,7 +90,7 @@ void Engine::openDevice() {
   checkError("Make Context Current");
 }
 
-void Engine::closeDevice() {
+void OpenALEngine::closeDevice() {
   if( !mDevice || !mContext ) return;
 
   // Cleanup resources
@@ -101,7 +110,7 @@ void Engine::closeDevice() {
   }
 }
 
-void Engine::checkError(std::string msg) {
+void OpenALEngine::checkError(std::string msg) {
   auto err = alGetError();
   switch(err) {
     case AL_NO_ERROR:

@@ -9,8 +9,10 @@
 #include <memory>
 #include <list>
 
+#include "audio/audio.h"
+
 /// The sound engine
-class Engine {
+class OpenALEngine {
 
   // Wrapper types around OpenAL
   // For now these are just handles/not required, may be expanded on later
@@ -22,11 +24,14 @@ class Engine {
   };
 
   public:
-    Engine();
-    ~Engine();
+    OpenALEngine();
+    ~OpenALEngine();
 
     /// Allocate a buffer and upload the provided data
     std::shared_ptr<Buffer> createBuffer( uint8_t numChannels, uint32_t sampleRate, const int16_t* data, size_t dataSize );
+
+    /// Allocate a buffer from an Audio instance
+    std::shared_ptr<Buffer> createBuffer( Audio& audio );
 
     /// Create a source (Which can play data from a buffer)
     std::shared_ptr<Source> createSource();
