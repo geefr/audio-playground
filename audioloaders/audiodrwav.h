@@ -30,7 +30,7 @@ public:
    */
   std::unique_ptr<int16_t[]> sample( uint32_t channel, float startT, float endT, uint32_t& numSamples ) override;
 
-  std::unique_ptr<int16_t[]> sample( uint32_t channel, uint64_t startSample, uint64_t endSample ) override;
+  std::unique_ptr<int16_t[]> sample( uint32_t channel, uint64_t startSample, uint64_t endSample, uint32_t& numSamples ) override;
 
   /// Direct access to audio buffer
   int16_t* data() const override;

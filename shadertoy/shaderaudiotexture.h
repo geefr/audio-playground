@@ -44,6 +44,9 @@ public:
    */
   void setAudio( Audio& audio, float startT, float endT );
 
+  // TODO: cleanups
+  void setAudioFFT( Audio& audio, float startT, float endT );
+
   uint32_t width() const;
   uint32_t height() const;
   float playbackTime() const;
@@ -55,6 +58,9 @@ private:
   const uint32_t mHeight = 2;
   float mPlaybackTime = 0.f;
   float mFFtScale = 0.f;
+
+  std::unique_ptr<float[]> mFFTData;
+  std::unique_ptr<float[]> mFFTDataLast;
 };
 
 #endif
