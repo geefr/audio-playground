@@ -28,8 +28,10 @@ add_executable( ${PROJECT_NAME}
   openalengine.cpp
   audio/audio.h
   audio/audio.cpp
-  audio/audiodrlibs.h
-  audio/audiodrlibs.cpp
+  audio/audiodrwav.h
+  audio/audiodrwav.cpp
+  audio/audiodrmp3.h
+  audio/audiodrmp3.cpp
   )
 
 target_link_libraries( ${PROJECT_NAME}

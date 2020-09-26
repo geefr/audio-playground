@@ -1,19 +1,16 @@
-#ifndef AUDIODRLIBS_H
-#define AUDIODRLIBS_H
+#ifndef AUDIODRMP3_H
+#define AUDIODRMP3_H
 
 #include "audio.h"
 
 /**
- * A sound buffer/audio track, loaded using dr_libs
- * The following formats are supported
- * - wav
- * - mp3
+ * A sound buffer/audio track, supporting MP3 files
  */
-class AudioDrLibs final : public Audio {
+class AudioDrMp3 final : public Audio {
 public:
-  AudioDrLibs() = delete;
-  AudioDrLibs(std::string filename);
-  virtual ~AudioDrLibs();
+  AudioDrMp3() = delete;
+  AudioDrMp3(std::string filename);
+  virtual ~AudioDrMp3();
 
   /**
    * Read a single sample

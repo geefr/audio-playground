@@ -15,11 +15,13 @@ int main(int argc, char** argv) {
   std::unique_ptr<OpenALEngine> e(new OpenALEngine());
 
   // Load the noise
+  std::cerr << "Loading...: " << filename << std::endl;
   auto audio = Audio::open(filename);
   if( !audio || audio->data() == nullptr ) {
     std::cout << "Failed to open audio file: " << filename << std::endl;
     return EXIT_FAILURE;
   }
+  std::cerr << "Audio loaded, playing through OpenAL" << std::endl;
 
   // Upload sound data to OpenAL
   // Note: Whole-buffer uploads only appropriate for short sounds etc - should stream the buffer for music
