@@ -46,12 +46,14 @@ public:
 
   uint32_t width() const;
   uint32_t height() const;
+  float playbackTime() const;
 
 private:
   GLuint mId = 0;
   std::unique_ptr<float[]> mBuffer;
   const uint32_t mWidth = 512;
   const uint32_t mHeight = 2;
+  float mPlaybackTime = 0.f;
 };
 
 #endif

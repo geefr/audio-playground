@@ -45,15 +45,20 @@ public:
    * @param channel The channel to read
    * @param startT The start time to read from
    * @param endT The end time to read from
+   * @param numSamples Will be set to size of returned array (TODO: This isn't nice, return a struct)
    * @return The requested range, or unique_ptr() on error
    */
-  virtual std::unique_ptr<int16_t[]> sample( uint32_t channel, float startT, float endT ) = 0;
+  virtual std::unique_ptr<int16_t[]> sample( uint32_t channel, float startT, float endT, uint32_t& numSamples ) = 0;
 
   /// Direct access to audio buffer
   virtual int16_t* data() const = 0;
 
   /// Size of the audio buffer, in bytes
   virtual uint64_t dataSize() const = 0;
+
+  /// Min/Max amplitude
+  int16_t minAmplitude() const;
+  int16_t maxAmplitude() const;
 
 protected:
   Audio() = default;
@@ -62,6 +67,7 @@ protected:
   uint32_t mNumChannels = 0;
   uint32_t mSampleRate = 0;
   float mLengthSeconds = 0.f;
+  int16_t mAmplitudeMax = 0;
 };
 
 #endif

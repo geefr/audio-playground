@@ -29,8 +29,16 @@ AudioDrWav::AudioDrWav(std::string filename) {
   // TODO: dr uses 'unsigned long long' for uint64_t
   mTotalPCMFrames = totalPCMframes;
 
-  mDataSize = mTotalPCMFrames * mNumChannels * sizeof(drwav_int16);
-  mLengthSeconds = static_cast<float>(mDataSize / mNumChannels) / mSampleRate;
+  mDataSize = (mTotalPCMFrames * mNumChannels) * sizeof(drwav_int16);
+  mLengthSeconds = static_cast<float>(mTotalPCMFrames) / mSampleRate;
+
+  // TODO: Efficiency on this? It's needed for normalisation later at least
+  for( auto i = 0u; i < mTotalPCMFrames; ++i ) {
+      for( auto j = 0u; j < mNumChannels; ++j ) {
+        auto a = static_cast<int16_t>(std::abs(mData[(i * mNumChannels) + j]));
+        mAmplitudeMax = std::max(mAmplitudeMax, a);
+      }
+  }
 }
 
 AudioDrWav::~AudioDrWav() {
@@ -43,25 +51,30 @@ int16_t AudioDrWav::sample( uint32_t channel, float t ) {
   if( t < 0.f || t > mLengthSeconds ) return 0;
 
   // data is one sample per channel, for each 1/mSampleRate interval
-  auto sampleI = static_cast<uint64_t>(t / mSampleRate);
+  auto sampleI = static_cast<uint64_t>(t * static_cast<float>(mSampleRate));
+  if( sampleI >= mTotalPCMFrames ) return 0;
 
   return mData[ (sampleI * mNumChannels) + channel ];
 }
 
-std::unique_ptr<int16_t[]> AudioDrWav::sample( uint32_t channel, float startT, float endT ) {
-  startT = std::clamp(startT, 0.f, mLengthSeconds);
-  endT = std::clamp(endT, 0.f, mLengthSeconds);
-
+std::unique_ptr<int16_t[]> AudioDrWav::sample( uint32_t channel, float startT, float endT, uint32_t& numSamples ) {
   // data is one sample per channel, for each 1/mSampleRate interval
-  auto sampleStart = static_cast<uint64_t>(startT / mSampleRate);
-  auto sampleEnd = static_cast<uint64_t>(endT / mSampleRate);
+  auto sampleStart = static_cast<uint64_t>(startT * static_cast<float>(mSampleRate));
+  auto sampleEnd = static_cast<uint64_t>(endT * static_cast<float>(mSampleRate));
+
+  // TODO: Better way to handle the edge case?
+  std::clamp(sampleStart, 0ul, mTotalPCMFrames - 1);
+  std::clamp(sampleEnd, 0ul, mTotalPCMFrames - 1);
 
   // Must have at least 1 sample
+  numSamples = 0;
   if( sampleEnd < sampleStart ) return {};
 
-  std::unique_ptr<int16_t[]> res(new int16_t[sampleEnd - sampleStart + 1]);
-  for( auto i = sampleStart; i < sampleEnd; ++i ) {
-    res[i] = mData[ (i * mNumChannels) + channel ];
+  numSamples = sampleEnd - sampleStart + 1;
+  std::unique_ptr<int16_t[]> res(new int16_t[numSamples * mNumChannels]);
+  for( auto i = 0; i < numSamples; ++i ) {
+    auto sampleOffset = ((sampleStart + i) * mNumChannels) + channel;
+    res[i] = mData[sampleOffset];
   }
 
   return res;

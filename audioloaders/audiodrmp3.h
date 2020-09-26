@@ -28,7 +28,7 @@ public:
    * @param endT The end time to read to
    * @return The requested range, or unique_ptr() on error
    */
-  std::unique_ptr<int16_t[]> sample( uint32_t channel, float startT, float endT ) override;
+  std::unique_ptr<int16_t[]> sample( uint32_t channel, float startT, float endT, uint32_t& numSamples ) override;
 
   /// Direct access to audio buffer
   int16_t* data() const override;

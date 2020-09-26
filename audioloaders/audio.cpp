@@ -29,3 +29,5 @@ uint32_t Audio::numChannels() const { return mNumChannels; }
 uint32_t Audio::sampleRate() const { return mSampleRate; }
 
 float Audio::lengthSeconds() const { return mLengthSeconds; }
+
+int16_t Audio::maxAmplitude() const { return mAmplitudeMax; }

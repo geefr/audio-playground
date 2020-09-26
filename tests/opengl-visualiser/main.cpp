@@ -96,7 +96,7 @@ try
     std::string filename(argv[1]);
 
     // Audio playback engine - OpenAL is overkill for what's needed, but simple to use
-    std::unique_ptr<OpenALEngine> e(new OpenALEngine());
+    std::unique_ptr<OpenALEngine> audioEngine(new OpenALEngine());
 
     glfwSetErrorCallback(errorCallback);
     if( !glfwInit() ) quit("Failed to init glfw");
@@ -117,7 +117,7 @@ try
 
     // Setup the rendering engine
     ShaderToyEngine engine;
-    engine.init(ShaderToyShaders::instance.ShaderToyBodyGeefrGlitchBlobs);
+    engine.init(ShaderToyShaders::instance.ShaderToyBodyGeefrAudioTestAMP);
 
     // Load audio
     std::cerr << "Loading...: " << filename << std::endl;
@@ -128,27 +128,23 @@ try
     }
     std::cerr << "Audio loaded, playing through OpenAL" << std::endl;
 
-    /* TODO: Spawn a thread to run the playback in, or otherwise don't block while it plays
-    // Upload sound data to OpenAL
-    // Note: Whole-buffer uploads only appropriate for short sounds etc - should stream the buffer for music
-    // auto buf = e->createBuffer(channels, sampleRate, soundData, totalPCMFrameCount * channels * sizeof(drwav_int16));
-    auto buf = e->createBuffer(*audio);
-
-    // Prepare a playback source
-    auto src = e->createSource();
-    e->bindBufferToSource(src, buf);
-
-    // Play until stop
-    e->playSourceAndWait(src);
-    */
-
     // Initialise shader input channels (audio textures)
     // Note: Creation requires a bound context - contructor will perform texture allocations
     std::shared_ptr<ShaderAudioTexture> audioTex0(new ShaderAudioTexture());
-    // TODO: Seed with dummy data for now
-    audioTex0->setAudio( *audio, 0.0, 0.0 );
 
     engine.audioTextures().push_back(audioTex0);
+
+    // TODO: Should run OpenAL in another thread if possible - It's fairly high cpu usage
+    // Upload sound data to OpenAL
+    // Note: Whole-buffer uploads only appropriate for short sounds etc - should stream the buffer for music
+    auto audioBuf = audioEngine->createBuffer(*audio);
+
+    // Prepare a playback source
+    auto audioSrc = audioEngine->createSource();
+    audioEngine->bindBufferToSource(audioSrc, audioBuf);
+
+    // The time when the audio source started playing
+    auto audioStartTime = std::chrono::steady_clock::now();
 
     auto width = 0;
     auto height = 0;
@@ -159,14 +155,32 @@ try
 
         auto currentTime = std::chrono::steady_clock::now();
 
-        // Update simulation
+        // Update any graphics simulation/timing data
         engine.update();
+
+        // Ensure the sound is playing, loop if it's not
+        if( !audioEngine->isSourcePlaying(audioSrc) ) {
+          audioEngine->playSource(audioSrc);
+          audioStartTime = currentTime;
+        }
+
+        auto audioOffsetSeconds = audioEngine->sourcePlaybackOffset(audioSrc);
+
+        // Update audio input to the renderer
+        audioTex0->setAudio( *audio, audioOffsetSeconds, audioOffsetSeconds + engine.updateDelta() );
 
         // Hack, should use framebuffersizecallback ;)
         glfwGetFramebufferSize(window, &width, &height);
 
         // Render to screen
         engine.render(width, height);
+
+        // TODO: We need to deal with synchronisation as we're uploading the texture each frame
+        // The correct way to do this is with a ringbuffer of textures, to let us be 1/2 frames
+        // ahead of where the gpu is, and avoid changing texture contents during a draw
+        // To get this working quickly however we'll just wait for the pipeline to be idle
+        glFlush();
+        glFinish();
 
         glfwSwapBuffers(window);
     }

@@ -43,6 +43,15 @@ class OpenALEngine {
     /// @note Calling this for looping sources is not recommended
     void playSourceAndWait(std::shared_ptr<Source>& source);
 
+    /// Start playing a source from the beginning, don't wait until it finishes
+    void playSource(std::shared_ptr<Source>& source);
+
+    /// Check if a source is (still) playing
+    bool isSourcePlaying(std::shared_ptr<Source>& source);
+
+    /// Get the playback offset of a source in seconds
+    float sourcePlaybackOffset(std::shared_ptr<Source>& source);
+
   private:
     /// Open the (default) device, initialise OpenAL
     void openDevice();

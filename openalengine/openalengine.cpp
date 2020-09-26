@@ -75,6 +75,24 @@ void OpenALEngine::playSourceAndWait(std::shared_ptr<Source>& source) {
   }
 }
 
+void OpenALEngine::playSource(std::shared_ptr<Source>& source) {
+  alSourcePlay(source->id);
+  checkError("Play source");
+}
+
+bool OpenALEngine::isSourcePlaying(std::shared_ptr<Source>& source) {
+  ALint state = AL_PLAYING;
+  alGetSourcei(source->id, AL_SOURCE_STATE, &state);
+  checkError("hasSourceFinished");
+  return state == AL_PLAYING;
+}
+
+float OpenALEngine::sourcePlaybackOffset(std::shared_ptr<Source>& source) {
+  float res = 0.0f;
+  alGetSourcef(source->id, AL_SEC_OFFSET, &res);
+  return res;
+}
+
 void OpenALEngine::openDevice() {
   mDevice = alcOpenDevice(nullptr);
   if( !mDevice ) {
