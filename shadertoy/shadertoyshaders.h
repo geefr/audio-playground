@@ -39,8 +39,8 @@ struct ShaderToyShaders {
    uniform vec4      iMouse;                // mouse pixel coords. xy: current (if MLB down), zw: click
    uniform vec4      iDate;                 // (year, month, day, time in seconds)
    uniform float     iSampleRate;           // sound sample rate (i.e., 44100)
-   // uniform vec3      iChannelResolution[4]
-   // uniform samplerXX iChanneli
+   uniform vec3      iChannelResolution[4]; // Resolution of input channels
+   uniform sampler2D iChannel0;             // Input channels (For audio in this case)
 
    out vec4 fragColor;
  )";

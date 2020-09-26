@@ -284,8 +284,14 @@ void ShaderToyEngine::initRenderPasses() {
   displayShader->regUniform("iMouse");
   displayShader->regUniform("iDate");
   displayShader->regUniform("iSampleRate");
-  // uniform vec3      iChannelResolution[4]
-  // uniform samplerXX iChanneli
+  displayShader->regUniform("iChannelResolution[0]");
+  displayShader->regUniform("iChannelResolution[1]");
+  displayShader->regUniform("iChannelResolution[2]");
+  displayShader->regUniform("iChannelResolution[3]");
+  displayShader->regUniform("iChannel0");
+  displayShader->regUniform("iChannel1");
+  displayShader->regUniform("iChannel2");
+  displayShader->regUniform("iChannel3");
 }
 
 void ShaderToyEngine::renderPassDisplay() {
@@ -297,19 +303,43 @@ void ShaderToyEngine::renderPassDisplay() {
   glBindVertexArray(mRenderPassDisplay.vao);
   glUseProgram(shader->id());
   // TODO: Bind shader resources (if needed, should be setup in vao already)
+  if( mAudioTextures.size() >= 1 ) {
+    auto iChannel0 = mAudioTextures[0];
+    if( iChannel0 ) {
+      iChannel0->bind(GL_TEXTURE_2D);
+    }
+  }
 
   glUniform3f(shader->uniform("iResolution"), mWidth, mHeight, 1.f);
   glUniform1f(shader->uniform("iTime"), secondsSinceInit());
   glUniform1f(shader->uniform("iTimeDelta"), mTimeDelta);
   glUniform1i(shader->uniform("iFrame"), mFrame);
 
-//  displayShader->regUniform("iChannelTime[0]");
+//  displayShader->regUniform("iChannelTime[0]"); // Channel playback time in seconds
 //  displayShader->regUniform("iChannelTime[1]");
 //  displayShader->regUniform("iChannelTime[2]");
 //  displayShader->regUniform("iChannelTime[3]");
-//  displayShader->regUniform("iMouse");
-//  displayShader->regUniform("iDate");
-//  displayShader->regUniform("iSampleRate");
+//  displayShader->regUniform("iMouse"); // Mouse position, drag
+//  displayShader->regUniform("iDate"); // Date with some special formula
+//  displayShader->regUniform("iSampleRate"); // Sample rate of all channels?
+
+  // Channel resolution (audio)
+  // x - number of samples, 512 is a sensible number
+  // y - number of channels, just hardcode it to 2 s most shaders expect stereo (duplicate the input if mono)
+  // Channel contents (audio) - a 2D texture
+  // x - Amplitude samples - Ideally one frame's worth across 0 <= x <= 1? No clear docs on this (I suppose most people use the fft bins?)
+  // y - FFT Samples/bins - x / bufferSize = f / (iSampleRate / 4)
+
+//  displayShader->regUniform("iChannelResolution[0]");
+//  displayShader->regUniform("iChannelResolution[1]");
+//  displayShader->regUniform("iChannelResolution[2]");
+//  displayShader->regUniform("iChannelResolution[3]");
+//  displayShader->regUniform("iChannel0");
+//  displayShader->regUniform("iChannel1");
+//  displayShader->regUniform("iChannel2");
+//  displayShader->regUniform("iChannel3");
+//  uniform vec3      iChannelResolution[4]; // Resolution of input channels in pixels
+//  uniform sampler2D iChannel0;             // Input channels (For audio in this case)
 
   glDrawArrays(GL_TRIANGLES, 0, mRenderPassDisplay.numVerts);
 }
@@ -363,3 +393,5 @@ float ShaderToyEngine::secondsSinceInit() const
 float ShaderToyEngine::width() const { return mWidth; }
 float ShaderToyEngine::height() const { return mHeight; }
 float ShaderToyEngine::updateDelta() const { return mTimeDelta; }
+
+std::vector<std::shared_ptr<ShaderAudioTexture>>& ShaderToyEngine::audioTextures() { return mAudioTextures; }

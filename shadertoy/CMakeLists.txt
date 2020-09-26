@@ -18,6 +18,8 @@ add_library( shadertoy STATIC
   defaultframebuffer.cpp
   #framebufferrendertotexture.h
   #framebufferrendertotexture.cpp
+  shaderaudiotexture.h
+  shaderaudiotexture.cpp
   )
 
 target_link_libraries( shadertoy PUBLIC OpenGL::GL )

@@ -22,6 +22,7 @@ using namespace glm;
 #include "shaderprogram.h"
 #include "framebuffer.h"
 #include "defaultframebuffer.h"
+#include "shaderaudiotexture.h"
 
 /**
  * Graphics engine providing ability to display ShaderToy shaders (https://www.shadertoy.com/)
@@ -108,6 +109,13 @@ public:
 
     // Rendering stuff and hacks below here
     std::map<std::string, std::shared_ptr<ShaderProgram>> mShaders;
+
+    /**
+     * The input channels/textures to the shader
+     * If more than 4 are added the extras will be ignored
+     * TODO: For now these are hardcoded to all be audio, image/other inputs not possible yet
+     */
+    std::vector<std::shared_ptr<ShaderAudioTexture>>& audioTextures();
 private:
     void checkGlError();
     GLuint loadTexture( std::string fileName );
@@ -137,6 +145,8 @@ private:
 
     RenderPass mRenderPassDisplay;
     GLuint vao;
+
+    std::vector<std::shared_ptr<ShaderAudioTexture>> mAudioTextures;
 };
 
 #endif

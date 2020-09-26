@@ -117,7 +117,7 @@ try
 
     // Setup the rendering engine
     ShaderToyEngine engine;
-    engine.init(ShaderToyShaders::instance.ShaderToyBodyIQRayMarchPrimitives);
+    engine.init(ShaderToyShaders::instance.ShaderToyBodyGeefrGlitchBlobs);
 
     // Load audio
     std::cerr << "Loading...: " << filename << std::endl;
@@ -141,6 +141,14 @@ try
     // Play until stop
     e->playSourceAndWait(src);
     */
+
+    // Initialise shader input channels (audio textures)
+    // Note: Creation requires a bound context - contructor will perform texture allocations
+    std::shared_ptr<ShaderAudioTexture> audioTex0(new ShaderAudioTexture());
+    // TODO: Seed with dummy data for now
+    audioTex0->setAudio( *audio, 0.0, 0.0 );
+
+    engine.audioTextures().push_back(audioTex0);
 
     auto width = 0;
     auto height = 0;
