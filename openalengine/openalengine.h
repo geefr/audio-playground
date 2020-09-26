@@ -9,7 +9,7 @@
 #include <memory>
 #include <list>
 
-#include "audio/audio.h"
+#include "audioloaders/audio.h"
 
 /// The sound engine
 class OpenALEngine {

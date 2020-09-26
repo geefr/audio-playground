@@ -11,29 +11,7 @@ else()
   set( CMAKE_CXX_FLAGS "-Werror=all -Wno-error=old-style-cast -Wno-error=unused-variable -Wno-error=unused-but-set-variable" )
 endif()
 
-# Locate system libraries
-find_package( OpenAL REQUIRED )
+add_subdirectory( audioloaders )
+add_subdirectory( openalengine )
+add_subdirectory( tests )
 
-include_directories( 
- ${OPENAL_INCLUDE_DIR}
- ${PROJECT_SOURCE_DIR}/extern
-)
-
-#link_directories( 
-#)
-
-add_executable( ${PROJECT_NAME}
-  main.cpp
-  openalengine.h
-  openalengine.cpp
-  audio/audio.h
-  audio/audio.cpp
-  audio/audiodrwav.h
-  audio/audiodrwav.cpp
-  audio/audiodrmp3.h
-  audio/audiodrmp3.cpp
-  )
-
-target_link_libraries( ${PROJECT_NAME}
-  ${OPENAL_LIBRARY}
-)

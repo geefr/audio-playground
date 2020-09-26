@@ -2,8 +2,8 @@
 #include <iostream>
 #include <memory>
 
-#include "openalengine.h"
-#include "audio/audio.h"
+#include "openalengine/openalengine.h"
+#include "audioloaders/audio.h"
 
 int main(int argc, char** argv) {
   if( argc < 2 ) {
