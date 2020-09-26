@@ -117,7 +117,7 @@ try
 
     // Setup the rendering engine
     ShaderToyEngine engine;
-    engine.init(ShaderToyShaders::instance.ShaderToyBodyGeefrAudioTestAMP);
+    engine.init(ShaderToyShaders::instance.ShaderToyBodyGeefrAudioTestFFT);
 
     // Load audio
     std::cerr << "Loading...: " << filename << std::endl;
@@ -165,9 +165,11 @@ try
         }
 
         auto audioOffsetSeconds = audioEngine->sourcePlaybackOffset(audioSrc);
+        // auto audioWindow = engine.updateDelta();
+        auto audioWindow = 1.0f;
 
         // Update audio input to the renderer
-        audioTex0->setAudio( *audio, audioOffsetSeconds, audioOffsetSeconds + engine.updateDelta() );
+        audioTex0->setAudio( *audio, audioOffsetSeconds, audioOffsetSeconds + audioWindow );
 
         // Hack, should use framebuffersizecallback ;)
         glfwGetFramebufferSize(window, &width, &height);

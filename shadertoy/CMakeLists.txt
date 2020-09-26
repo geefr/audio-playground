@@ -4,6 +4,7 @@ find_package( OpenGL REQUIRED )
 
 include_directories(
  ${PROJECT_SOURCE_DIR}
+ ${PROJECT_SOURCE_DIR}/extern
 )
 
 add_library( shadertoy STATIC
@@ -22,5 +23,5 @@ add_library( shadertoy STATIC
   shaderaudiotexture.cpp
   )
 
-target_link_libraries( shadertoy PUBLIC OpenGL::GL )
+target_link_libraries( shadertoy PUBLIC OpenGL::GL kissfft )
 

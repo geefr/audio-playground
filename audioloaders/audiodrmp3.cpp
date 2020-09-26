@@ -68,13 +68,17 @@ std::unique_ptr<int16_t[]> AudioDrMp3::sample( uint32_t channel, float startT, f
   std::clamp(sampleStart, 0ul, mTotalPCMFrames - 1);
   std::clamp(sampleEnd, 0ul, mTotalPCMFrames - 1);
 
+  return sample(channel, sampleStart, sampleEnd, numSamples);
+}
+
+std::unique_ptr<int16_t[]> AudioDrMp3::sample( uint32_t channel, uint64_t sampleStart, uint64_t sampleEnd, uint32_t& numSamples ) {
   // Must have at least 1 sample
   numSamples = 0;
   if( sampleEnd < sampleStart ) return {};
 
   numSamples = sampleEnd - sampleStart + 1;
   std::unique_ptr<int16_t[]> res(new int16_t[numSamples * mNumChannels]);
-  for( auto i = 0; i < numSamples; ++i ) {
+  for( auto i = 0u; i < numSamples; ++i ) {
     auto sampleOffset = ((sampleStart + i) * mNumChannels) + channel;
     res[i] = mData[sampleOffset];
   }

@@ -13,7 +13,7 @@ std::unique_ptr<Audio> Audio::open( std::string filename ) {
   auto ext = path.extension();
 
   if( ext == ".wav" ) {
-    return std::unique_ptr<Audio>(new AudioDrWav(filename));
+    // return std::unique_ptr<Audio>(new AudioDrWav(filename));
   }
   else if(ext == ".mp3") {
     return std::unique_ptr<Audio>(new AudioDrMp3(filename));

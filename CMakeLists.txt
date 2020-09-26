@@ -11,6 +11,8 @@ else()
   set( CMAKE_CXX_FLAGS "-Werror=all -Wno-error=old-style-cast -Wno-error=unused-variable -Wno-error=unused-but-set-variable" )
 endif()
 
+add_subdirectory( extern/kissfft )
+
 add_subdirectory( audioloaders )
 add_subdirectory( openalengine )
 add_subdirectory( shadertoy )

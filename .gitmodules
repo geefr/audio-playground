@@ -4,3 +4,6 @@
 [submodule "extern/dr_libs"]
 	path = extern/dr_libs
 	url = https://github.com/mackron/dr_libs
+[submodule "extern/kissfft"]
+	path = extern/kissfft
+	url = https://github.com/mborgerding/kissfft.git

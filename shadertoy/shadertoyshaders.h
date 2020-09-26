@@ -129,7 +129,7 @@ struct ShaderToyShaders {
        vec4 channel0FFT = texture(iChannel0, vec2(uv.x, 0.25));
 
        if( uv.y > channel0FFT.r ) {
-         fragColor = vec4(0.5 + 0.5*cos(iTime+uv.xyx+vec3(0,2,4)), 1.0);
+         fragColor = vec4(0.0,0.0,0.0,1.0); // vec4(0.5 + 0.5*cos(iTime+uv.xyx+vec3(0,2,4)), 1.0);
        } else {
          fragColor = channel0FFT;
        }
@@ -148,7 +148,7 @@ struct ShaderToyShaders {
        vec4 channel0Amplitude = texture(iChannel0, vec2(uv.x, 0.75));
 
        if( abs(0.5 - uv.y) > channel0Amplitude.r * 0.5 ) {
-           fragColor = vec4(0.5 + 0.5*cos(iTime+uv.xyx+vec3(0,2,4)), 1.0);
+           fragColor = vec4(0.0,0.0,0.0,1.0); // vec4(0.5 + 0.5*cos(iTime+uv.xyx+vec3(0,2,4)), 1.0);
        } else {
            fragColor = channel0Amplitude;
        }

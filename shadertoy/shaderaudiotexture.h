@@ -54,6 +54,7 @@ private:
   const uint32_t mWidth = 512;
   const uint32_t mHeight = 2;
   float mPlaybackTime = 0.f;
+  float mFFtScale = 0.f;
 };
 
 #endif
