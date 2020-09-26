@@ -1,5 +1,5 @@
 
-#include "audiowav.h"
+#include "audiodrlibs.h"
 
 #include <algorithm>
 #include <filesystem>
@@ -8,9 +8,11 @@ namespace fs = std::filesystem;
 #include <iostream>
 #include <memory>
 #define DR_WAV_IMPLEMENTATION
+#define DR_MP3_IMPLEMENTATION
 #include "dr_libs/dr_wav.h"
+#include "dr_libs/dr_mp3.h"
 
-AudioWav::AudioWav(std::string filename) {
+AudioDrLibs::AudioDrLibs(std::string filename) {
   if( !fs::exists(fs::path(filename)) ) {
     return;
   }
@@ -32,13 +34,13 @@ AudioWav::AudioWav(std::string filename) {
   mLengthSeconds = static_cast<float>(mDataSize / mNumChannels) / mSampleRate;
 }
 
-AudioWav::~AudioWav() {
+AudioDrLibs::~AudioDrLibs() {
   if( mData ) {
     drwav_free(mData, nullptr);
   }
 }
 
-int16_t AudioWav::sample( uint32_t channel, float t ) {
+int16_t AudioDrLibs::sample( uint32_t channel, float t ) {
   if( t < 0.f || t > mLengthSeconds ) return 0;
 
   // data is one sample per channel, for each 1/mSampleRate interval
@@ -47,7 +49,7 @@ int16_t AudioWav::sample( uint32_t channel, float t ) {
   return mData[ (sampleI * mNumChannels) + channel ];
 }
 
-std::unique_ptr<int16_t[]> AudioWav::sample( uint32_t channel, float startT, float endT ) {
+std::unique_ptr<int16_t[]> AudioDrLibs::sample( uint32_t channel, float startT, float endT ) {
   startT = std::clamp(startT, 0.f, mLengthSeconds);
   endT = std::clamp(endT, 0.f, mLengthSeconds);
 
@@ -66,6 +68,6 @@ std::unique_ptr<int16_t[]> AudioWav::sample( uint32_t channel, float startT, flo
   return res;
 }
 
-int16_t* AudioWav::data() const { return mData; }
+int16_t* AudioDrLibs::data() const { return mData; }
 
-uint64_t AudioWav::dataSize() const { return mDataSize; }
+uint64_t AudioDrLibs::dataSize() const { return mDataSize; }

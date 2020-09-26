@@ -1,6 +1,6 @@
 #include "audio.h"
 
-#include "audiowav.h"
+#include "audiodrlibs.h"
 // #include "audiomp3.h"
 
 #include <filesystem>
@@ -12,12 +12,10 @@ std::unique_ptr<Audio> Audio::open( std::string filename ) {
   auto path = fs::path(filename);
   auto ext = path.extension();
 
-  if( ext == ".wav" ) {
-    return std::unique_ptr<Audio>(new AudioWav(filename));
+  if( ext == ".wav" ||
+      ext == ".mp3") {
+    return std::unique_ptr<Audio>(new AudioDrLibs(filename));
   }
-//  else if( ext == ".mp3" ) {
-//    return AudioMp3::open(filename);
-//  }
 
   return {};
 }

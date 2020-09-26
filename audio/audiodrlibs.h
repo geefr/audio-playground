@@ -1,23 +1,19 @@
-#ifndef AUDIOMP3_H
-#define AUDIOMP3_H
-
-#error "AudioMp3 implementation incomplete - do not use"
+#ifndef AUDIODRLIBS_H
+#define AUDIODRLIBS_H
 
 #include "audio.h"
 
 /**
- * A sound buffer/audio track, loaded from MP3
+ * A sound buffer/audio track, loaded using dr_libs
+ * The following formats are supported
+ * - wav
+ * - mp3
  */
-class AudioMp3 final : public Audio {
+class AudioDrLibs final : public Audio {
 public:
-  virtual ~AudioMp3();
-
-  /**
-   * Factory method - Load an mp3 file
-   * @param filename File to load
-   * @return Loaded audio, nullptr if file not supported
-   */
-  static std::unique_ptr<Audio> open( std::string filename );
+  AudioDrLibs() = delete;
+  AudioDrLibs(std::string filename);
+  virtual ~AudioDrLibs();
 
   /**
    * Read a single sample
@@ -32,7 +28,7 @@ public:
    * Read samples from a single channel
    * @param channel The channel to read
    * @param startT The start time to read from
-   * @param endT The end time to read from
+   * @param endT The end time to read to
    * @return The requested range, or unique_ptr() on error
    */
   std::unique_ptr<int16_t[]> sample( uint32_t channel, float startT, float endT ) override;
@@ -44,7 +40,9 @@ public:
   uint64_t dataSize() const override;
 
 protected:
-  AudioMp3();
+  int16_t* mData = nullptr;
+  uint64_t mDataSize = 0;
+  uint64_t mTotalPCMFrames = 0;
 };
 
 #endif
