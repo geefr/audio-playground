@@ -28,3 +28,6 @@ if( MSVC )
   )
   target_link_libraries( shadertoy PUBLIC ${GLEW_LIBRARIES} )  
 endif()
+
+install( DIRECTORY shaders DESTINATION ./ )
+

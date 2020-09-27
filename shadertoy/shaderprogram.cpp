@@ -87,7 +87,7 @@
           }
           else
           {
-              throw std::runtime_error("Failed to link shader, unknown reason");
+            throw std::runtime_error("Failed to link shader, unknown reason");
           }
       }
 

@@ -41,9 +41,9 @@ public:
 
     /**
      * Initialise the engine
-     * @param shaderToyBodySrc A shadertoy shader, containing a mainImage function
+     * @param shaderDir Directory containing shaders (Shader toy compatible, containing a mainImage function)
      */
-    void init(std::string shaderToyBodySrc);
+    void init(std::string shaderDir);
 
     /// Generic vertex definition for graphical shaders
     struct VertexDef
@@ -111,8 +111,14 @@ public:
     float width() const;
     float height() const;
 
-    // Rendering stuff and hacks below here
+    /// The shaders available to the engine
     std::map<std::string, std::shared_ptr<ShaderProgram>> mShaders;
+
+    /**
+     * Change the active shader
+     * @param toy One of the shaders from mShaders
+     */
+    void activeShaderToy( std::shared_ptr<ShaderProgram> toy );
 
     /**
      * The input channels/textures to the shader
@@ -151,6 +157,8 @@ private:
     GLuint vao;
 
     std::vector<std::shared_ptr<ShaderAudioTexture>> mAudioTextures;
+
+    std::shared_ptr<ShaderProgram> mActiveShaderToy;
 };
 
 #endif

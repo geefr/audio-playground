@@ -99,7 +99,7 @@ ShaderToyEngine::ShaderToyEngine(  )
   // TODO: Load shadertoy src, inject into frag shader
 }
 
-void ShaderToyEngine::init(std::string shaderToyBodySrc)
+void ShaderToyEngine::init(std::string shaderDir)
 {
 #ifdef _WIN32
     GLenum err = glewInit();
@@ -141,13 +141,24 @@ void ShaderToyEngine::init(std::string shaderToyBodySrc)
 
     // Find where the shaders and such are
 
-    // Let's load some shaders
-    // The shader used to display the final scene
-    std::shared_ptr<ShaderProgram> toy(new ShaderProgram());
-    toy->addShaderFromSrc(GL_VERTEX_SHADER, ShaderToyShaders::instance.ShaderToyBoilerPlateVert, "Shadertoy Boilerplate Vertex");
-    std::string fragSrc = ShaderToyShaders::instance.ShaderToyBoilerPlateFragHeader + shaderToyBodySrc + ShaderToyShaders::instance.ShaderToyBoilerPlateFragFooter;
-    toy->addShaderFromSrc(GL_FRAGMENT_SHADER, fragSrc, "Shadertoy Fragment");
-    mShaders["shadertoy"] = toy; // TODO: Should store all available shaders here
+    // Load shaders from disk
+    auto shaders = ShaderToyShaders::instance.loadShaders(shaderDir);
+    // Compile/link each, store for later use
+    for( auto& shader : shaders ) {
+        std::cerr << "Compiling shader: " << shader.first << "\n";
+        std::shared_ptr<ShaderProgram> toy(new ShaderProgram());
+        toy->addShaderFromSrc(GL_VERTEX_SHADER, ShaderToyShaders::instance.ShaderToyBoilerPlateVert, "Shadertoy Boilerplate Vertex");
+        std::string fragSrc = ShaderToyShaders::instance.ShaderToyBoilerPlateFragHeader + shader.second + ShaderToyShaders::instance.ShaderToyBoilerPlateFragFooter;
+        toy->addShaderFromSrc(GL_FRAGMENT_SHADER, fragSrc, "Shadertoy Fragment");
+        // TODO: Should check if the shader compiled okay. At the moment any errors will terminate the program, which will be a problem for live coding later
+        mShaders[shader.first] = toy;
+    }
+
+    if( !mShaders.empty() ) {
+        mActiveShaderToy = mShaders.begin()->second;
+    } else {
+      quit("Failed to load any shaders from shader dir: " + shaderDir);
+    }
 
     initRenderPasses();
 
@@ -244,11 +255,6 @@ void ShaderToyEngine::initRenderPasses() {
   glGenVertexArrays(1, &mRenderPassDisplay.vao);
   glBindVertexArray(mRenderPassDisplay.vao);
   glGenBuffers(1, &mRenderPassDisplay.vbo);
-  auto displayShader = mShaders["shadertoy"];
-  if( !displayShader ) {
-    ShaderToyEngine::quit("Failed to lookup shader for initRenderPasses");
-  }
-  displayShader->id(); // Ensure shader has cached uniform IDs and otherwise initialised
 
   auto left = -1.f;
   auto right = 1.f;
@@ -269,36 +275,38 @@ void ShaderToyEngine::initRenderPasses() {
   glBindBuffer(GL_ARRAY_BUFFER, mRenderPassDisplay.vbo);
   glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(displayVerts.size() * sizeof(VertexDef)), displayVerts.data(), GL_STATIC_DRAW );
 
-  glUseProgram(displayShader->id());
-  displayShader->regAttribute("vertCoord", 3, GL_FLOAT, GL_FALSE, sizeof(VertexDef), reinterpret_cast<const void*>(offsetof(VertexDef,coord)));
-  displayShader->regAttribute("vertTexCoord", 2, GL_FLOAT, GL_FALSE, sizeof(VertexDef), reinterpret_cast<const void*>(offsetof(VertexDef,texCoord)));
+  for( auto& shader : mShaders ) {
+    auto& s = shader.second;
+    s->id(); // Ensure shader has cached uniform IDs and otherwise initialised
 
-  displayShader->regUniform("iResolution");
-  displayShader->regUniform("iTime");
-  displayShader->regUniform("iTimeDelta");
-  displayShader->regUniform("iFrame");
-  displayShader->regUniform("iChannelTime[0]");
-  displayShader->regUniform("iChannelTime[1]");
-  displayShader->regUniform("iChannelTime[2]");
-  displayShader->regUniform("iChannelTime[3]");
-  displayShader->regUniform("iMouse");
-  displayShader->regUniform("iDate");
-  displayShader->regUniform("iSampleRate");
-  displayShader->regUniform("iChannelResolution[0]");
-  displayShader->regUniform("iChannelResolution[1]");
-  displayShader->regUniform("iChannelResolution[2]");
-  displayShader->regUniform("iChannelResolution[3]");
-  displayShader->regUniform("iChannel0");
-  displayShader->regUniform("iChannel1");
-  displayShader->regUniform("iChannel2");
-  displayShader->regUniform("iChannel3");
+    glUseProgram(s->id());
+    s->regAttribute("vertCoord", 3, GL_FLOAT, GL_FALSE, sizeof(VertexDef), reinterpret_cast<const void*>(offsetof(VertexDef,coord)));
+    s->regAttribute("vertTexCoord", 2, GL_FLOAT, GL_FALSE, sizeof(VertexDef), reinterpret_cast<const void*>(offsetof(VertexDef,texCoord)));
+
+    s->regUniform("iResolution");
+    s->regUniform("iTime");
+    s->regUniform("iTimeDelta");
+    s->regUniform("iFrame");
+    s->regUniform("iChannelTime[0]");
+    s->regUniform("iChannelTime[1]");
+    s->regUniform("iChannelTime[2]");
+    s->regUniform("iChannelTime[3]");
+    s->regUniform("iMouse");
+    s->regUniform("iDate");
+    s->regUniform("iSampleRate");
+    s->regUniform("iChannelResolution[0]");
+    s->regUniform("iChannelResolution[1]");
+    s->regUniform("iChannelResolution[2]");
+    s->regUniform("iChannelResolution[3]");
+    s->regUniform("iChannel0");
+    s->regUniform("iChannel1");
+    s->regUniform("iChannel2");
+    s->regUniform("iChannel3");
+  }
 }
 
 void ShaderToyEngine::renderPassDisplay() {
-  auto shader = mShaders["shadertoy"];
-  if( !shader ) {
-    ShaderToyEngine::quit("Failed to lookup shader for renderPassDisplay");
-  }
+  auto& shader = mActiveShaderToy;
 
   glBindVertexArray(mRenderPassDisplay.vao);
   glUseProgram(shader->id());
@@ -381,3 +389,4 @@ float ShaderToyEngine::height() const { return mHeight; }
 float ShaderToyEngine::updateDelta() const { return mTimeDelta; }
 
 std::vector<std::shared_ptr<ShaderAudioTexture>>& ShaderToyEngine::audioTextures() { return mAudioTextures; }
+void ShaderToyEngine::activeShaderToy( std::shared_ptr<ShaderProgram> toy ) { mActiveShaderToy = toy; }

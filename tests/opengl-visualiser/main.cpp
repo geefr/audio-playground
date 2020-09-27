@@ -117,7 +117,12 @@ try
 
     // Setup the rendering engine
     ShaderToyEngine engine;
-    engine.init(ShaderToyShaders::instance.ShaderToyBodyGeefrGlitchBlobs);
+    std::string shaderDir = "../shaders";
+    auto shaderEnv = std::getenv("SHADER_DIR");
+    if( shaderEnv ) {
+      shaderDir = shaderEnv;
+    }
+    engine.init(shaderDir);
 
     // Load audio
     std::cerr << "Loading...: " << filename << std::endl;
