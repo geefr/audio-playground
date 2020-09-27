@@ -49,43 +49,8 @@ AudioDrMp3::~AudioDrMp3() {
   }
 }
 
-int16_t AudioDrMp3::sample( uint32_t channel, float t ) {
-  if( t < 0.f || t > mLengthSeconds ) return 0;
-
-  // data is one sample per channel, for each 1/mSampleRate interval
-  auto sampleI = static_cast<uint64_t>(t * static_cast<float>(mSampleRate));
-  if( sampleI >= mTotalPCMFrames ) return 0;
-
-  return mData[ (sampleI * mNumChannels) + channel ];
-}
-
-std::unique_ptr<int16_t[]> AudioDrMp3::sample( uint32_t channel, float startT, float endT, uint32_t& numSamples ) {
-  // data is one sample per channel, for each 1/mSampleRate interval
-  auto sampleStart = static_cast<uint64_t>(startT * static_cast<float>(mSampleRate));
-  auto sampleEnd = static_cast<uint64_t>(endT * static_cast<float>(mSampleRate));
-
-  // TODO: Better way to handle the edge case?
-  std::clamp(sampleStart, 0ul, mTotalPCMFrames - 1);
-  std::clamp(sampleEnd, 0ul, mTotalPCMFrames - 1);
-
-  return sample(channel, sampleStart, sampleEnd, numSamples);
-}
-
-std::unique_ptr<int16_t[]> AudioDrMp3::sample( uint32_t channel, uint64_t sampleStart, uint64_t sampleEnd, uint32_t& numSamples ) {
-  // Must have at least 1 sample
-  numSamples = 0;
-  if( sampleEnd < sampleStart ) return {};
-
-  numSamples = sampleEnd - sampleStart + 1;
-  std::unique_ptr<int16_t[]> res(new int16_t[numSamples * mNumChannels]);
-  for( auto i = 0u; i < numSamples; ++i ) {
-    auto sampleOffset = ((sampleStart + i) * mNumChannels) + channel;
-    res[i] = mData[sampleOffset];
-  }
-
-  return res;
-}
-
 int16_t* AudioDrMp3::data() const { return mData; }
 
 uint64_t AudioDrMp3::dataSize() const { return mDataSize; }
+
+uint64_t AudioDrMp3::totalSamples() const { return mTotalPCMFrames; }
