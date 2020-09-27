@@ -789,6 +789,332 @@ struct ShaderToyShaders {
    }
 )";
 
+ /// https://www.shadertoy.com/view/4lj3W1
+ const std::string ShaderToyBodyMatrixTunnelV3 = R"(
+ //
+ // Color version of: https://www.shadertoy.com/view/XlXGDf
+ //
+ // Based on: https://www.shadertoy.com/view/4dfSRS
+ //
+
+ #define PI 3.14159
+
+ // not the best way to do this, but it works
+ vec4 audioEq() {
+     float vol = 0.0;
+
+     // bass
+     float lows = 0.0;
+     for(float i=0.;i<85.; i++){
+         float v =  texture(iChannel0, vec2(i/85., 0.0)).x;
+         lows += v*v;
+         vol += v*v;
+     }
+     lows /= 85.0;
+     lows = sqrt(lows);
+
+     // mids
+     float mids = 0.0;
+     for(float i=85.;i<255.; i++){
+         float v =  texture(iChannel0, vec2(i/170., 0.0)).x;
+         mids += v*v;
+         vol += v*v;
+     }
+     mids /= 170.0;
+     mids = sqrt(mids);
+
+     // treb
+     float highs = 0.0;
+     for(float i=255.;i<512.; i++){
+         float v =  texture(iChannel0, vec2(i/255., 0.0)).x;
+         highs += v*v;
+         vol += v*v;
+     }
+     highs /= 255.0;
+     highs = sqrt(highs);
+
+     vol /= 512.;
+     vol = sqrt(vol);
+
+     return vec4( lows * 1.5, mids * 1.25, highs * 1.0, vol ); // bass, mids, treb, volume
+ }
+
+ void mainImage( out vec4 fragColor, in vec2 fragCoord )
+ {
+         vec2 uv = fragCoord.xy / iResolution.xy;
+     uv = abs( 2.05 * ( uv - 0.5 ) );
+
+     vec4 eq = audioEq();
+         float theta = 1.0 * ( 1.0 / ( PI * 0.5 ) ) * atan( uv.x, uv.y);
+
+     float l = length( uv );
+     float a = 0.01 - l; //vignette
+     uv = vec2( theta, l );
+
+     float t1 = texture( iChannel0, vec2( uv.x, 0.9 ) ).x;
+     float t2 = texture( iChannel0, vec2( uv.y, 0.9 ) ).x;
+
+     float x = t1 * t2;
+     float y = x * a * 6.0;
+     float r = cos(x) + y;
+
+     float red   = sin( r * ( 4.0 * PI ) * eq.r );
+     float green = sin( r * ( 2.0 * PI ) * eq.g );
+     float blue  = sin( r * ( 1.0 * PI ) * eq.b );
+
+     vec3 c = vec3( red * cos( y ), green * cos( y ), blue * cos( y ) );
+
+         fragColor = vec4( c, 1.0);
+ })";
+
+ /// https://www.shadertoy.com/view/4lj3W1
+ const std::string ShaderToyBodyMatrixTunnelV3MixFFT = R"(
+ //
+ // Color version of: https://www.shadertoy.com/view/XlXGDf
+ //
+ // Based on: https://www.shadertoy.com/view/4dfSRS
+ //
+
+ #define PI 3.14159
+
+ // not the best way to do this, but it works
+ vec4 audioEq() {
+     float vol = 0.0;
+
+     // bass
+     float lows = 0.0;
+     for(float i=0.;i<85.; i++){
+         float v =  texture(iChannel0, vec2(i/85., 0.0)).x;
+         lows += v*v;
+         vol += v*v;
+     }
+     lows /= 85.0;
+     lows = sqrt(lows);
+
+     // mids
+     float mids = 0.0;
+     for(float i=85.;i<255.; i++){
+         float v =  texture(iChannel0, vec2(i/170., 0.0)).x;
+         mids += v*v;
+         vol += v*v;
+     }
+     mids /= 170.0;
+     mids = sqrt(mids);
+
+     // treb
+     float highs = 0.0;
+     for(float i=255.;i<512.; i++){
+         float v =  texture(iChannel0, vec2(i/255., 0.0)).x;
+         highs += v*v;
+         vol += v*v;
+     }
+     highs /= 255.0;
+     highs = sqrt(highs);
+
+     vol /= 512.;
+     vol = sqrt(vol);
+
+     return vec4( lows * 1.5, mids * 1.25, highs * 1.0, vol ); // bass, mids, treb, volume
+ }
+
+ void mainImage( out vec4 fragColor, in vec2 fragCoord )
+ {
+         vec2 uv = fragCoord.xy / iResolution.xy;
+     uv = abs( 2.05 * ( uv - 0.5 ) );
+
+     vec4 eq = audioEq();
+         float theta = 1.0 * ( 1.0 / ( PI * 0.5 ) ) * atan( uv.x, uv.y);
+
+     float l = length( uv );
+     float a = 0.01 - l; //vignette
+     uv = vec2( theta, l );
+
+     float t1 = texture( iChannel0, vec2( uv.x, 0.9 ) ).x;
+     float t2 = texture( iChannel0, vec2( uv.y, 0.9 ) ).x;
+
+     float x = t1 * t2;
+     float y = x * a * 6.0;
+     float r = cos(x) + y;
+
+     float red   = sin( r * ( 4.0 * PI ) * eq.r );
+     float green = sin( r * ( 2.0 * PI ) * eq.g );
+     float blue  = sin( r * ( 1.0 * PI ) * eq.b );
+
+     vec3 c = vec3( red * cos( y ), green * cos( y ), blue * cos( y ) );
+
+         fragColor = vec4( c, 1.0);
+
+     // FFT Debug overlay
+     uv = fragCoord.xy / iResolution.xy;
+     // FFT Value is stored in red channel, at y == 0.25
+     // x represents the FFT bucket, so a basic spectrum display is just x,0.25 + cutoff
+     vec4 channel0FFT = texture(iChannel0, vec2(uv.x, 0.25));
+
+     if( uv.y * 4.0 < channel0FFT.r ) {
+       fragColor = mix(fragColor, channel0FFT, 0.65);
+     }
+ })";
+
+ /// https://www.shadertoy.com/view/Mss3Dr
+ const std::string ShaderToyBodyAudioSurf = R"(
+  // by nikos papadopoulos, 4rknova / 2013
+  // Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
+
+  #define P 3.14159
+  #define E .001
+
+  #define T .03 // Thickness
+  #define W 2.  // Width
+  #define A .09 // Amplitude
+  #define V 1.  // Velocity
+
+  void mainImage(out vec4 fragColor, in vec2 fragCoord)
+  {
+          vec2 c = fragCoord.xy / iResolution.xy;
+          float s = texture(iChannel0, c * .5).r;
+          c = vec2(0, A*s*sin((c.x*W+iTime*V)* 2.5)) + (c*2.-1.);
+          float g = max(abs(s/(pow(c.y, 2.1*sin(s*P))))*T,
+                                    abs(.1/(c.y+E)));
+          fragColor = vec4(g*g*s*.6, g*s*.44, g*g*.7, 1);
+  })";
+
+ /// https://www.shadertoy.com/view/Mss3Dr
+ const std::string ShaderToyBodyAudioSurfMixFFT = R"(
+  // by nikos papadopoulos, 4rknova / 2013
+  // Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
+
+  #define P 3.14159
+  #define E .001
+
+  #define T .03 // Thickness
+  #define W 2.  // Width
+  #define A .09 // Amplitude
+  #define V 1.  // Velocity
+
+  void mainImage(out vec4 fragColor, in vec2 fragCoord)
+  {
+          vec2 c = fragCoord.xy / iResolution.xy;
+          float s = texture(iChannel0, c * .5).r;
+          c = vec2(0, A*s*sin((c.x*W+iTime*V)* 2.5)) + (c*2.-1.);
+          float g = max(abs(s/(pow(c.y, 2.1*sin(s*P))))*T,
+                                    abs(.1/(c.y+E)));
+
+          fragColor = vec4(g*g*s*.6, g*s*.44, g*g*.7, 1);
+
+          // FFT Debug overlay
+          vec2 uv = fragCoord.xy / iResolution.xy;
+          // FFT Value is stored in red channel, at y == 0.25
+          // x represents the FFT bucket, so a basic spectrum display is just x,0.25 + cutoff
+          vec4 channel0FFT = texture(iChannel0, vec2(uv.x, 0.25));
+
+          if( uv.y * 4.0 < channel0FFT.r ) {
+            fragColor = mix(fragColor, channel0FFT, 0.35);
+          }
+  })";
+
+ /// https://www.shadertoy.com/view/Mlj3WV
+ const std::string ShaderToyBodyLEDSpectrum = R"(
+  /*
+  2D LED Spectrum - Visualiser
+  Based on Led Spectrum Analyser by: simesgreen - 27th February, 2013 https://www.shadertoy.com/view/Msl3zr
+  2D LED Spectrum by: uNiversal - 27th May, 2015
+  Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
+  */
+
+  void mainImage( out vec4 fragColor, in vec2 fragCoord )
+  {
+      // create pixel coordinates
+      vec2 uv = fragCoord.xy / iResolution.xy;
+
+      // quantize coordinates
+      const float bands = 30.0;
+      const float segs = 40.0;
+      vec2 p;
+      p.x = floor(uv.x*bands)/bands;
+      p.y = floor(uv.y*segs)/segs;
+
+      // read frequency data from first row of texture
+      float fft  = texture( iChannel0, vec2(p.x,0.0) ).x;
+
+      // led color
+      vec3 color = mix(vec3(0.0, 2.0, 0.0), vec3(2.0, 0.0, 0.0), sqrt(uv.y));
+
+      // mask for bar graph
+      float mask = (p.y < fft) ? 1.0 : 0.1;
+
+      // led shape
+      vec2 d = fract((uv - p) *vec2(bands, segs)) - 0.5;
+      float led = smoothstep(0.5, 0.35, abs(d.x)) *
+                  smoothstep(0.5, 0.35, abs(d.y));
+      vec3 ledColor = led*color*mask;
+
+      // output final color
+      fragColor = vec4(ledColor, 1.0);
+  }
+                                              )";
+
+ /// https://www.shadertoy.com/view/Xtj3DW
+ const std::string ShaderToyBodyTwistedRings = R"(
+ // Created by Pol Jeremias - pol/2015
+ // License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
+
+ #define SOUND_MULTIPLIER 2.0
+
+ float drawCircle(float r, float polarRadius, float thickness)
+ {
+         return 	smoothstep(r, r + thickness, polarRadius) -
+                 smoothstep(r + thickness, r + 2.0 * thickness, polarRadius);
+ }
+
+ float sin01(float v)
+ {
+         return 0.5 + 0.5 * sin(v);
+ }
+
+ void mainImage( out vec4 fragColor, in vec2 fragCoord )
+ {
+         vec2 uv = fragCoord.xy / iResolution.xy;
+
+     float rstandard = SOUND_MULTIPLIER * texture( iChannel0, vec2(0.1, 0.0) ).x;
+
+     // Center the coordinates and apply the aspect ratio
+     vec2 p = uv - vec2(0.5) + vec2(0.05, 0.05) * rstandard;
+     p.x *= iResolution.x / iResolution.y;
+
+     // Calculate polar coordinates
+     float pr = length(p);
+     float pa = atan(p.y, p.x); // * 3.0 / 3.14;
+
+     // Retrieve the information from the texture
+     float idx = (pa/3.1415 + 1.0) / 2.0;   // 0 to 1
+     float idx2 = idx * 3.1415;             // 0 to PI
+
+     // Get the data from the microphone
+     vec2 react = sin(idx2) * SOUND_MULTIPLIER * texture( iChannel0, vec2(idx, 0.0) ).xy;
+
+     // Draw the circles
+     float o = 0.0;
+     float inc = 0.0;
+
+     for( float i = 1.0 ; i < 8.0 ; i += 1.0 )
+     {
+         float baseradius = 0.3 * ( 0.3 + sin01(rstandard + iTime * 0.2) );
+         float radius = baseradius + inc;
+
+         radius += 0.01 * ( sin01(pa * i + iTime * (i - 1.0) ) );
+
+         o += drawCircle(radius, pr, 0.008 * (1.0 + react.x * (i - 1.0)));
+
+         inc += 0.005;
+     }
+
+     // Calculate the background color
+     vec3 bcol = vec3(1.0, 0.22, 0.5 - 0.4*p.y) * (1.0 - 0.6 * pr * react.x);
+     vec3 col = mix(bcol, vec3(1.0,1.0,0.7), o);
+         fragColor = vec4(col, 1.0);
+ }
+ )";
+
  /// Not one of mine, thanks go to TDM
  /// Complex shader - Doesn't work on Intel :(
  /// https://www.shadertoy.com/view/Ms2SD1

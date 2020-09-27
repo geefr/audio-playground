@@ -117,7 +117,7 @@ try
 
     // Setup the rendering engine
     ShaderToyEngine engine;
-    engine.init(ShaderToyShaders::instance.ShaderToyBodyGeefrAudioTestFFT2);
+    engine.init(ShaderToyShaders::instance.ShaderToyBodyMatrixTunnelV3MixFFT);
 
     // Load audio
     std::cerr << "Loading...: " << filename << std::endl;

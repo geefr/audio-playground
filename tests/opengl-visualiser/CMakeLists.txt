@@ -8,7 +8,7 @@ add_executable( opengl-visualiser
 )
 
 target_link_libraries( opengl-visualiser
-  audioloaders
+  audioprocessing
   openalengine
   shadertoy
   glfw

@@ -76,10 +76,21 @@ void ShaderAudioTexture::setAudioFFT( Audio& audio, float startT, float endT ) {
   auto numSamples = 0u;
 
   auto samples = audio.sample(0, sampleStart, sampleEnd, numSamples);
-  // TODO: Average other channels
+  // If the audio has more channels then combined with an average
+  for( auto i = 1u; i < audio.numChannels(); ++i ) {
+    uint32_t numSamplesI = 0;
+    auto samplesI = audio.sample(i, sampleStart, sampleEnd, numSamplesI);
+    numSamplesI = std::min(numSamples, numSamplesI);
+    for( auto x = 0u; x < numSamplesI; ++x) {
+        samples[x] += samplesI[x];
+    }
+  }
+  for( auto x = 0u; x < numSamples; ++x ) {
+    samples[x] /= static_cast<float>(audio.numChannels());
+  }
 
   // Fill the FFT component of the texture (y == 0)
-  kiss_fft_cpx fftIn[fftWindowSize], fftOut[fftWindowSize];
+  kiss_fft_cpx fftIn[numSamples], fftOut[fftWindowSize];
   for( auto s = 0u; s < numSamples; ++s ) {
     fftIn[s].r = samples[s];
     fftIn[s].i = 0;
@@ -105,7 +116,6 @@ void ShaderAudioTexture::setAudioFFT( Audio& audio, float startT, float endT ) {
     auto fftMax = 0.f;
     auto decayConstant = 0.9f;
     auto scaleDecayConstant = 0.1f;
-    auto increaseConstant = 0.99f;
     for( auto x = 0u; x < mWidth; ++x ) {
         float xPercent = static_cast<float>(x) / static_cast<float>(mWidth);
         auto fftX = static_cast<uint32_t>(((xPercent / 2.0) * fftWindowSize));
@@ -120,17 +130,23 @@ void ShaderAudioTexture::setAudioFFT( Audio& audio, float startT, float endT ) {
         // Lossy peak detector
         if( mFFTDataLast ) {
           auto oldMag = mFFTDataLast[x];
-          if( mag <= oldMag ) {
+          if( mag < oldMag ) {
             mag = oldMag * (1.0 - (decayConstant * (endT - startT)));
           }
         }
 
         mFFTData[x] = mag;
         mBuffer[x] = mag;
-        fftMax = std::max(fftMax, mag);
-
     }
     //std::cerr << "FFT Max: " << fftMax << std::endl;
+
+    // fftMin = std::max(fftMin, 0.1f * mFFtScale);
+
+    for( auto x = 0u; x < mWidth; ++x ) {
+      mBuffer[x] = (mBuffer[x]);
+      fftMax = std::max(fftMax, mBuffer[x]);
+      mBuffer[x] /= mFFtScale;
+    }
 
     if( fftMax > mFFtScale ) {
         mFFtScale = fftMax;
@@ -139,9 +155,6 @@ void ShaderAudioTexture::setAudioFFT( Audio& audio, float startT, float endT ) {
     }
     //std::cerr << "FFT scale: " << mFFtScale << std::endl;
 
-    for( auto x = 0u; x < mWidth; ++x ) {
-      mBuffer[x] /= mFFtScale;
-    }
   }
 
 }

@@ -3,7 +3,7 @@ include_directories(
  ${PROJECT_SOURCE_DIR}/extern
 )
 
-add_library( audioloaders STATIC
+add_library( audioprocessing STATIC
   audio.h
   audio.cpp
   audiodrwav.h

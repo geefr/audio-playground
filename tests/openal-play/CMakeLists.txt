@@ -8,7 +8,7 @@ add_executable( openal-play
 )
 
 target_link_libraries( openal-play
-  audioloaders
+  audioprocessing
   openalengine
 )
 

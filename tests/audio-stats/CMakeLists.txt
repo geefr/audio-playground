@@ -8,6 +8,6 @@ add_executable( audio-stats
 )
 
 target_link_libraries( audio-stats
-  audioloaders
+  audioprocessing
 )
 
