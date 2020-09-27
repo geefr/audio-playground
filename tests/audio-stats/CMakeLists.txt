@@ -11,3 +11,5 @@ target_link_libraries( audio-stats
   audioprocessing
 )
 
+install( TARGETS audio-stats )
+

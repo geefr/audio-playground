@@ -12,3 +12,4 @@ target_link_libraries( openal-play
   openalengine
 )
 
+install( TARGETS openal-play )

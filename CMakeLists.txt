@@ -4,6 +4,7 @@ project(audio-playground)
 
 # Compiler/Tool requirements
 set( CMAKE_CXX_STANDARD 20 )
+set( OpenGL_GL_PREFERENCE GLVND )
 
 # Locate system libraries
 find_package( OpenGL REQUIRED )

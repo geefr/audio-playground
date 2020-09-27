@@ -13,3 +13,5 @@ target_link_libraries( opengl-visualiser
   shadertoy
   glfw
 )
+
+install( TARGETS opengl-visualiser )
