@@ -1,7 +1,7 @@
 
 #include "shaderaudiotexture.h"
 
-#include "audioloaders/audio.h"
+#include "audioprocessing/audio.h"
 
 
 // TODO: May not be the fastest option, but should work for what's needed

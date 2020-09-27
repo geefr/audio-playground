@@ -13,7 +13,7 @@ endif()
 
 add_subdirectory( extern/kissfft )
 
-add_subdirectory( audioloaders )
+add_subdirectory( audioprocessing )
 add_subdirectory( openalengine )
 add_subdirectory( shadertoy )
 add_subdirectory( tests )

@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "openalengine/openalengine.h"
-#include "audioloaders/audio.h"
+#include "audioprocessing/audio.h"
 
 int main(int argc, char** argv) {
   if( argc < 2 ) {

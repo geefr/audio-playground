@@ -4,7 +4,7 @@
 #include <chrono>
 
 #include "openalengine/openalengine.h"
-#include "audioloaders/audio.h"
+#include "audioprocessing/audio.h"
 #include "shadertoy/shadertoyengine.h"
 
 // TODO: These are placeholder shaders - should be talking to the shadertoy rest api to fetch these
