@@ -4,6 +4,8 @@ include_directories(
 )
 
 add_library( audioprocessing STATIC
+  audioprocessing.h
+  audioprocessing.cpp
   audio.h
   audio.cpp
   audiodrwav.h
@@ -12,3 +14,4 @@ add_library( audioprocessing STATIC
   audiodrmp3.cpp
   )
 
+target_link_libraries( audioprocessing PUBLIC kissfft )

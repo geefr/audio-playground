@@ -64,6 +64,24 @@ public:
    */
   std::unique_ptr<int16_t[]> sample( uint32_t channel, float startT, float endT, uint32_t& numSamples );
 
+  /**
+   * Read samples from all channels, return the average
+   * @param startSample The sample to start reading from
+   * @param endSample The sample to read to
+   * @param numSamples Will be set to the size of the returned array (TODO: Improve style)
+   * @return
+   */
+  std::unique_ptr<int16_t[]> sampleAllChannels( uint64_t startSample, uint64_t endSample, uint32_t& numSamples );
+
+  /**
+   * Read samples from all channels, return the average, between 2 timestamps
+   * @param startT The start time to read from
+   * @param endT The end time to read from
+   * @param numSamples Will be set to size of returned array (TODO: Improve style)
+   * @return The requested range, or unique_ptr() on error
+   */
+  std::unique_ptr<int16_t[]> sampleAllChannels( float startT, float endT, uint32_t& numSamples );
+
   /// Direct access to audio buffer
   virtual int16_t* data() const = 0;
 

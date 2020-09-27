@@ -23,5 +23,4 @@ add_library( shadertoy STATIC
   shaderaudiotexture.cpp
   )
 
-target_link_libraries( shadertoy PUBLIC OpenGL::GL kissfft )
-
+target_link_libraries( shadertoy PUBLIC OpenGL::GL audioprocessing )

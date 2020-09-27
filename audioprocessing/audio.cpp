@@ -3,6 +3,7 @@
 #include "audiodrwav.h"
 #include "audiodrmp3.h"
 
+#include <cstring>
 #include <filesystem>
 namespace fs = std::filesystem;
 
@@ -64,6 +65,38 @@ std::unique_ptr<int16_t[]> Audio::sample( uint32_t channel, uint64_t sampleStart
   for( auto i = 0u; i < numSamples; ++i ) {
     auto sampleOffset = ((sampleStart + i) * mNumChannels) + channel;
     res[i] = data()[sampleOffset];
+  }
+
+  return res;
+}
+
+std::unique_ptr<int16_t[]> Audio::sampleAllChannels( float startT, float endT, uint32_t& numSamples ) {
+  // data is one sample per channel, for each 1/mSampleRate interval
+  auto sampleStart = static_cast<uint64_t>(startT * static_cast<float>(mSampleRate));
+  auto sampleEnd = static_cast<uint64_t>(endT * static_cast<float>(mSampleRate));
+
+  // TODO: Better way to handle the edge case?
+  std::clamp(sampleStart, 0ul, totalSamples() - 1);
+  std::clamp(sampleEnd, 0ul, totalSamples() - 1);
+
+  return sampleAllChannels(sampleStart, sampleEnd, numSamples);
+}
+
+std::unique_ptr<int16_t[]> Audio::sampleAllChannels( uint64_t sampleStart, uint64_t sampleEnd, uint32_t& numSamples ) {
+  // Must have at least 1 sample
+  numSamples = 0;
+  if( sampleEnd < sampleStart ) return {};
+
+  numSamples = sampleEnd - sampleStart + 1;
+  std::unique_ptr<int16_t[]> res(new int16_t[numSamples * mNumChannels]);
+  std::memset(res.get(), 0x00, numSamples * mNumChannels * sizeof(int16_t));
+
+  for( auto i = 0u; i < numSamples; ++i ) {
+    for( auto s = 0u; s < mNumChannels; ++s ) {
+      auto sampleOffset = ((sampleStart + i) * mNumChannels) + s;
+      // TODO: May need to use floats here to avoid discarding small signals, should be fine for now
+      res[i] += data()[sampleOffset] / mNumChannels;
+    }
   }
 
   return res;
