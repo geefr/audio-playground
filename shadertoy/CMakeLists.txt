@@ -1,7 +1,4 @@
 
-# Locate system libraries
-find_package( OpenGL REQUIRED )
-
 include_directories(
  ${PROJECT_SOURCE_DIR}
  ${PROJECT_SOURCE_DIR}/extern
@@ -23,4 +20,11 @@ add_library( shadertoy STATIC
   shaderaudiotexture.cpp
   )
 
-target_link_libraries( shadertoy PUBLIC OpenGL::GL audioprocessing )
+target_link_libraries( shadertoy PUBLIC OpenGL::GL audioprocessing glfw )
+if( MSVC )
+  target_include_directories( shadertoy PUBLIC 
+    ${GLEW_INCLUDE_DIR}
+	${glm_DIR}/../../ # TODO
+  )
+  target_link_libraries( shadertoy PUBLIC ${GLEW_LIBRARIES} )  
+endif()

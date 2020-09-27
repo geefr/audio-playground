@@ -1,8 +1,13 @@
 #ifndef SHADERPROGRAM_H
 #define SHADERPROGRAM_H
 
-#define GL_GLEXT_PROTOTYPES
-#include <GLFW/glfw3.h>
+#ifdef WIN32
+# include <GL/glew.h>
+#else
+# define GL_GLEXT_PROTOTYPES
+# include <GL/gl.h>
+# include <GL/glext.h>
+#endif
 
 #include <vector>
 #include <string>

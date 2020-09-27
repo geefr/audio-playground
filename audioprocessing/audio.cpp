@@ -43,19 +43,19 @@ int16_t Audio::sample( uint32_t channel, float t ) {
   return data()[ (sampleI * mNumChannels) + channel ];
 }
 
-std::unique_ptr<int16_t[]> Audio::sample( uint32_t channel, float startT, float endT, uint32_t& numSamples ) {
+std::unique_ptr<int16_t[]> Audio::sample( uint32_t channel, float startT, float endT, uint64_t& numSamples ) {
   // data is one sample per channel, for each 1/mSampleRate interval
   auto sampleStart = static_cast<uint64_t>(startT * static_cast<float>(mSampleRate));
   auto sampleEnd = static_cast<uint64_t>(endT * static_cast<float>(mSampleRate));
 
   // TODO: Better way to handle the edge case?
-  std::clamp(sampleStart, 0ul, totalSamples() - 1);
-  std::clamp(sampleEnd, 0ul, totalSamples() - 1);
+  sampleStart = std::clamp(sampleStart, static_cast<uint64_t>(0), totalSamples() - 1);
+  sampleEnd = std::clamp(sampleEnd, static_cast<uint64_t>(0), totalSamples() - 1);
 
   return sample(channel, sampleStart, sampleEnd, numSamples);
 }
 
-std::unique_ptr<int16_t[]> Audio::sample( uint32_t channel, uint64_t sampleStart, uint64_t sampleEnd, uint32_t& numSamples ) {
+std::unique_ptr<int16_t[]> Audio::sample( uint32_t channel, uint64_t sampleStart, uint64_t sampleEnd, uint64_t& numSamples ) {
   // Must have at least 1 sample
   numSamples = 0;
   if( sampleEnd < sampleStart ) return {};
@@ -70,19 +70,19 @@ std::unique_ptr<int16_t[]> Audio::sample( uint32_t channel, uint64_t sampleStart
   return res;
 }
 
-std::unique_ptr<int16_t[]> Audio::sampleAllChannels( float startT, float endT, uint32_t& numSamples ) {
+std::unique_ptr<int16_t[]> Audio::sampleAllChannels( float startT, float endT, uint64_t& numSamples ) {
   // data is one sample per channel, for each 1/mSampleRate interval
   auto sampleStart = static_cast<uint64_t>(startT * static_cast<float>(mSampleRate));
   auto sampleEnd = static_cast<uint64_t>(endT * static_cast<float>(mSampleRate));
 
   // TODO: Better way to handle the edge case?
-  std::clamp(sampleStart, 0ul, totalSamples() - 1);
-  std::clamp(sampleEnd, 0ul, totalSamples() - 1);
+  sampleStart = std::clamp(sampleStart, static_cast<uint64_t>(0), totalSamples() - 1);
+  sampleEnd = std::clamp(sampleEnd, static_cast<uint64_t>(0), totalSamples() - 1);
 
   return sampleAllChannels(sampleStart, sampleEnd, numSamples);
 }
 
-std::unique_ptr<int16_t[]> Audio::sampleAllChannels( uint64_t sampleStart, uint64_t sampleEnd, uint32_t& numSamples ) {
+std::unique_ptr<int16_t[]> Audio::sampleAllChannels( uint64_t sampleStart, uint64_t sampleEnd, uint64_t& numSamples ) {
   // Must have at least 1 sample
   numSamples = 0;
   if( sampleEnd < sampleStart ) return {};

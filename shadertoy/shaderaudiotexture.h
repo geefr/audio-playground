@@ -1,9 +1,13 @@
 #ifndef SHADERAUDIOTEXTURE_H
 #define SHADERAUDIOTEXTURE_H
 
-#define GL_GLEXT_PROTOTYPES
-#include <GL/gl.h>
-#include <GL/glext.h>
+#ifdef WIN32
+# include <GL/glew.h>
+#else
+# define GL_GLEXT_PROTOTYPES
+# include <GL/gl.h>
+# include <GL/glext.h>
+#endif
 
 #include <memory>
 

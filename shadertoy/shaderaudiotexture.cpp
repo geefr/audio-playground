@@ -29,7 +29,7 @@ void ShaderAudioTexture::setAudio( Audio& audio, float startT, float endT ) {
   mPlaybackTime = startT;
 
   // Sample the first channel
-  uint32_t numSamples = 0;
+  uint64_t numSamples = 0;
   auto samples = audio.sampleAllChannels(startT, endT, numSamples);
 
   // Fill the amplitude component of the texture (y == 1)
