@@ -170,6 +170,10 @@ struct ShaderToyShaders {
        }
    })";
 
+
+// Sorry, MSVC has a limit on string length
+#ifndef WIN32
+
  /// https://www.shadertoy.com/view/Xds3zN
  /// A set of raw primitives. All except the ellipsoid are exact euclidean distances. More info here: http://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
  const std::string ShaderToyBodyIQRayMarchPrimitives = R"(
@@ -788,6 +792,7 @@ struct ShaderToyShaders {
        fragColor = vec4( tot, 1.0 );
    }
 )";
+#endif
 
  /// https://www.shadertoy.com/view/4lj3W1
  const std::string ShaderToyBodyMatrixTunnelV3 = R"(

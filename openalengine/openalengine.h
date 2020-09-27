@@ -1,8 +1,13 @@
 #ifndef ENGINE_H
 #define ENGINE_H
 
-#include <AL/al.h>
-#include <AL/alc.h>
+#ifdef WIN32
+# include <al.h>
+# include <alc.h>
+#else
+# include <AL/al.h>
+# include <AL/alc.h>
+#endif
 
 #include <string>
 #include <vector>

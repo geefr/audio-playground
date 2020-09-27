@@ -117,7 +117,7 @@ try
 
     // Setup the rendering engine
     ShaderToyEngine engine;
-    engine.init(ShaderToyShaders::instance.ShaderToyBodyMatrixTunnelV3MixFFT);
+    engine.init(ShaderToyShaders::instance.ShaderToyBodyGeefrGlitchBlobs);
 
     // Load audio
     std::cerr << "Loading...: " << filename << std::endl;

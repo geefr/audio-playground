@@ -52,7 +52,7 @@ public:
    * @param numSamples Will be set to the size of the returned array (TODO: Improve style)
    * @return
    */
-  std::unique_ptr<int16_t[]> sample( uint32_t channel, uint64_t startSample, uint64_t endSample, uint32_t& numSamples );
+  std::unique_ptr<int16_t[]> sample( uint32_t channel, uint64_t startSample, uint64_t endSample, uint64_t& numSamples );
 
   /**
    * Read samples from a single channel, between 2 timestamps
@@ -62,7 +62,7 @@ public:
    * @param numSamples Will be set to size of returned array (TODO: Improve style)
    * @return The requested range, or unique_ptr() on error
    */
-  std::unique_ptr<int16_t[]> sample( uint32_t channel, float startT, float endT, uint32_t& numSamples );
+  std::unique_ptr<int16_t[]> sample( uint32_t channel, float startT, float endT, uint64_t& numSamples );
 
   /**
    * Read samples from all channels, return the average
@@ -71,7 +71,7 @@ public:
    * @param numSamples Will be set to the size of the returned array (TODO: Improve style)
    * @return
    */
-  std::unique_ptr<int16_t[]> sampleAllChannels( uint64_t startSample, uint64_t endSample, uint32_t& numSamples );
+  std::unique_ptr<int16_t[]> sampleAllChannels( uint64_t startSample, uint64_t endSample, uint64_t& numSamples );
 
   /**
    * Read samples from all channels, return the average, between 2 timestamps
@@ -80,7 +80,7 @@ public:
    * @param numSamples Will be set to size of returned array (TODO: Improve style)
    * @return The requested range, or unique_ptr() on error
    */
-  std::unique_ptr<int16_t[]> sampleAllChannels( float startT, float endT, uint32_t& numSamples );
+  std::unique_ptr<int16_t[]> sampleAllChannels( float startT, float endT, uint64_t& numSamples );
 
   /// Direct access to audio buffer
   virtual int16_t* data() const = 0;
