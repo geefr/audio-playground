@@ -3,12 +3,13 @@ include_directories(
   ${PROJECT_SOURCE_DIR}
 )
 
-add_executable( openal-play
+add_executable( opengl-visualiser
   main.cpp
 )
 
-target_link_libraries( openal-play
+target_link_libraries( opengl-visualiser
   audioprocessing
   openalengine
+  shadertoy
+  glfw
 )
-

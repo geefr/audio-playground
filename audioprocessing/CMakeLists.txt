@@ -3,7 +3,9 @@ include_directories(
  ${PROJECT_SOURCE_DIR}/extern
 )
 
-add_library( audioloaders STATIC
+add_library( audioprocessing STATIC
+  audioprocessing.h
+  audioprocessing.cpp
   audio.h
   audio.cpp
   audiodrwav.h
@@ -12,3 +14,4 @@ add_library( audioloaders STATIC
   audiodrmp3.cpp
   )
 
+target_link_libraries( audioprocessing PUBLIC kissfft )
