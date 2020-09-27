@@ -120,6 +120,9 @@ public:
      */
     void activeShaderToy( std::shared_ptr<ShaderProgram> toy );
 
+    /// Switch to the next shader/effect
+    void nextShader();
+
     /**
      * The input channels/textures to the shader
      * If more than 4 are added the extras will be ignored

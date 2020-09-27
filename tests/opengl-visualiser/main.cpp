@@ -13,6 +13,8 @@
 #define GL_GLEXT_PROTOTYPES
 #include <GLFW/glfw3.h>
 
+ShaderToyEngine engine;
+
 [[noreturn]] void quit(std::string msg)
 {
     throw std::runtime_error(msg);
@@ -35,6 +37,10 @@ void keyCallback(GLFWwindow* window, int key, [[maybe_unused]] int scancode, int
             // case GLFW_KEY_1:
             //     viewRotDelta[0] = M_PI / 360.0f;
             //     break;
+            case GLFW_KEY_TAB:
+            case GLFW_KEY_S:
+                engine.nextShader();
+                break;
         }
     }
     else if( action == GLFW_RELEASE )
@@ -116,7 +122,6 @@ try
     glfwSwapInterval(1);
 
     // Setup the rendering engine
-    ShaderToyEngine engine;
     std::string shaderDir = "../shaders";
     auto shaderEnv = std::getenv("SHADER_DIR");
     if( shaderEnv ) {
@@ -125,13 +130,11 @@ try
     engine.init(shaderDir);
 
     // Load audio
-    std::cerr << "Loading...: " << filename << std::endl;
     auto audio = Audio::open(filename);
     if( !audio || audio->data() == nullptr ) {
       std::cout << "Failed to open audio file: " << filename << std::endl;
       return EXIT_FAILURE;
     }
-    std::cerr << "Audio loaded, playing through OpenAL" << std::endl;
 
     // Initialise shader input channels (audio textures)
     // Note: Creation requires a bound context - contructor will perform texture allocations
@@ -171,7 +174,6 @@ try
 
         auto audioOffsetSeconds = audioEngine->sourcePlaybackOffset(audioSrc);
         auto audioWindow = engine.updateDelta();
-        // auto audioWindow = 1.0f;
 
         // Update audio input to the renderer
         audioTex0->setAudio( *audio, audioOffsetSeconds, audioOffsetSeconds + audioWindow );
@@ -191,8 +193,6 @@ try
 
         glfwSwapBuffers(window);
     }
-
-    // TODO: Being naughty here and not deleting the OpenGL resources :/
 
     glfwDestroyWindow(window);
     glfwTerminate();
