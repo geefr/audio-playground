@@ -15,7 +15,7 @@ pipeline {
     stage('Dependencies') { steps {
       rtDownload (
           serverId: ARTIFACTORY,
-          specPath: 'generic-local/thirdparty/glew-2.1.0.zip'
+          specPath: '${env.WORKSPACE}/jenkins/msvc-dep-download.json'
       )
     } }
 

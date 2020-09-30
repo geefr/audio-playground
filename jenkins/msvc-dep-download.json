@@ -1,0 +1,16 @@
+{
+  "files": [
+    {
+      "pattern": "generic-local/thirdparty/glew-2.1.0.zip",
+      "target": "deps/"
+    },
+    {
+      "pattern": "generic-local/thirdparty/glfw-3.3.2.zip",
+      "target": "deps/"
+    },
+    {
+      "pattern": "generic-local/thirdparty/glm-0.9.9.8.zip",
+      "target": "deps/"
+    }
+  ]
+}
