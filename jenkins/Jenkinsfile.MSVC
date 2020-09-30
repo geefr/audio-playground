@@ -15,7 +15,7 @@ pipeline {
     stage('Dependencies') { steps {
       rtDownload (
           serverId: ARTIFACTORY,
-          specPath: 'jenkins/msvc-dep-download.json'
+          specPath: 'source/jenkins/msvc-dep-download.json'
       )
     } }
 
