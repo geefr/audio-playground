@@ -3,6 +3,7 @@
 
 #include <string>
 #include <memory>
+#include <vector>
 
 /**
  * A sound buffer/audio track
@@ -17,7 +18,17 @@ public:
    * @param filename File to load
    * @return Loaded audio, nullptr if file not supported
    */
-  static std::unique_ptr<Audio> open( std::string filename );
+  static std::shared_ptr<Audio> open( std::string filename );
+
+  /**
+   * Factory method - Load all audio files from a directory
+   * @param directory The directory to load files from
+   * @param audioFiles Any loaded files will be appended to this vector
+   * @return true if one or more files were loaded, false otherwise
+   */
+  static bool openRecursive( std::string directory, std::vector<std::shared_ptr<Audio>>& audioFiles );
+
+  static bool FindSupportedFiles( std::string directory, std::vector<std::string>& audioFiles );
 
   /// The file the audio was loaded from (if any)
   std::string filename() const;

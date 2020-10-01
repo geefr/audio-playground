@@ -18,17 +18,16 @@
 
 /// The sound engine
 class OpenALEngine {
-
-  // Wrapper types around OpenAL
-  // For now these are just handles/not required, may be expanded on later
-  struct Buffer {
-    ALuint id = 0;
-  };
-  struct Source {
-    ALuint id = 0;
-  };
-
   public:
+    // Wrapper types around OpenAL
+    // For now these are just handles/not required, may be expanded on later
+    struct Buffer {
+      ALuint id = 0;
+    };
+    struct Source {
+      ALuint id = 0;
+    };
+
     OpenALEngine();
     ~OpenALEngine();
 
@@ -50,6 +49,10 @@ class OpenALEngine {
 
     /// Start playing a source from the beginning, don't wait until it finishes
     void playSource(std::shared_ptr<Source>& source);
+
+    void stopSource(std::shared_ptr<Source>& source);
+    void deleteSource(std::shared_ptr<Source>& source);
+    void deleteBuffer(std::shared_ptr<Buffer>& buffer);
 
     /// Check if a source is (still) playing
     bool isSourcePlaying(std::shared_ptr<Source>& source);
