@@ -9,3 +9,11 @@ Key bindings:
 * s - Skip track
 * x - Skip shader
 
+Supported audio formats:
+* mp3
+* wav
+
+Runtime dependencies:
+* OpenAL
+* OpenGL 3.3 or higher
+
