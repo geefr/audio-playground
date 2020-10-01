@@ -36,3 +36,4 @@ add_subdirectory( openalengine )
 add_subdirectory( shadertoy )
 add_subdirectory( tests )
 
+install( DIRECTORY music DESTINATION . )
