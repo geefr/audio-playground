@@ -153,6 +153,8 @@ try
 
     // The time when the audio source started playing
     auto audioStartTime = std::chrono::steady_clock::now();
+    auto shaderStartTime = audioStartTime;
+    auto shaderSwitchTime = 10.f;
 
     auto width = 0;
     auto height = 0;
@@ -180,6 +182,13 @@ try
 
         // Hack, should use framebuffersizecallback ;)
         glfwGetFramebufferSize(window, &width, &height);
+
+        // Switch the visualisation on a regular interval
+        // TODO: Should be more sophisticated here, Only switch on a beat, etc
+        if( ((currentTime - shaderStartTime) / std::chrono::milliseconds(1)) / 1000.f > shaderSwitchTime ) {
+          engine.nextShader();
+          shaderStartTime = currentTime;
+        }
 
         // Render to screen
         engine.render(width, height);
