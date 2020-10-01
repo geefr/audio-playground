@@ -2,6 +2,7 @@
 #include <iostream>
 #include <memory>
 #include <chrono>
+#include <random>
 
 #include "openalengine/openalengine.h"
 #include "audioprocessing/audio.h"
@@ -14,6 +15,7 @@
 #include <GLFW/glfw3.h>
 
 ShaderToyEngine engine;
+bool skipTrack = false;
 
 [[noreturn]] void quit(std::string msg)
 {
@@ -37,8 +39,10 @@ void keyCallback(GLFWwindow* window, int key, [[maybe_unused]] int scancode, int
             // case GLFW_KEY_1:
             //     viewRotDelta[0] = M_PI / 360.0f;
             //     break;
-            case GLFW_KEY_TAB:
             case GLFW_KEY_S:
+                skipTrack = true;
+                break;
+            case GLFW_KEY_X:
                 engine.nextShader();
                 break;
         }
@@ -92,14 +96,27 @@ void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
     */
 }
 
+/// Select a random song to play
+/// TODO: Encapsulate in a better place, typedef the map, do this in the background, etc
+std::vector<std::string>::iterator shuffleMusic(std::vector<std::string>& music) {
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<> distrib(0, music.size() - 1);
+
+  auto it = music.begin();
+  std::advance(it, distrib(gen));
+  return it;
+}
+
 int main(int argc, char** argv) {
 try
 {
-    if( argc < 2 ) {
-      std::cout << "USAGE: " << argv[0] << " <Audio file>" << std::endl;
-      return EXIT_FAILURE;
+    std::string filename;
+    if( argc >= 2 ) {
+      filename = argv[1];
+    } else {
+      std::cout << "Loading all music files, please wait..";
     }
-    std::string filename(argv[1]);
 
     // Audio playback engine - OpenAL is overkill for what's needed, but simple to use
     std::unique_ptr<OpenALEngine> audioEngine(new OpenALEngine());
@@ -130,10 +147,20 @@ try
     engine.init(shaderDir);
 
     // Load audio
-    auto audio = Audio::open(filename);
-    if( !audio || audio->data() == nullptr ) {
-      std::cout << "Failed to open audio file: " << filename << std::endl;
-      return EXIT_FAILURE;
+    std::string musicDir = "../music";
+    auto musicEnv = std::getenv("MUSIC_DIR");
+    if( musicEnv ) {
+      musicDir = musicEnv;
+    }
+
+    std::vector<std::string> audioFiles;
+    if( !filename.empty() ) {
+        audioFiles.push_back(filename);
+    } else {
+      if( !Audio::FindSupportedFiles(musicDir, audioFiles) ) {
+          std::cout << "Failed to find audio files in " << musicDir << std::endl;
+          return EXIT_FAILURE;
+        }
     }
 
     // Initialise shader input channels (audio textures)
@@ -142,19 +169,16 @@ try
 
     engine.audioTextures().push_back(audioTex0);
 
-    // TODO: Should run OpenAL in another thread if possible - It's fairly high cpu usage
-    // Upload sound data to OpenAL
-    // Note: Whole-buffer uploads only appropriate for short sounds etc - should stream the buffer for music
-    auto audioBuf = audioEngine->createBuffer(*audio);
-
-    // Prepare a playback source
-    auto audioSrc = audioEngine->createSource();
-    audioEngine->bindBufferToSource(audioSrc, audioBuf);
-
     // The time when the audio source started playing
     auto audioStartTime = std::chrono::steady_clock::now();
     auto shaderStartTime = audioStartTime;
     auto shaderSwitchTime = 10.f;
+
+    // Resources for playing the audio
+    std::shared_ptr<OpenALEngine::Source> audioSrc;
+    std::shared_ptr<OpenALEngine::Buffer> audioBuf;
+    std::shared_ptr<Audio> audio;
+    auto trackIndex = 0;
 
     auto width = 0;
     auto height = 0;
@@ -169,10 +193,34 @@ try
         engine.update();
 
         // Ensure the sound is playing, loop if it's not
-        if( !audioEngine->isSourcePlaying(audioSrc) ) {
-          audioEngine->playSource(audioSrc);
-          audioStartTime = currentTime;
-        }
+        if( !audioEngine->isSourcePlaying(audioSrc) || skipTrack ) {
+            // TODO: Should run OpenAL in another thread if possible - It's fairly high cpu usage, and at the moment the graphics will stall when changing tracks
+            // TODO: This section really needs some work - openAL is a poor choice for just playing music, and this is pretty ugly here
+            // auto audioIt = shuffleMusic(audioFiles);
+            // audio = Audio::open(*audioIt);
+            trackIndex++;
+            if( trackIndex == audioFiles.size() ) trackIndex = 0;
+            audio = Audio::open(audioFiles[trackIndex]);
+            if( !audio ) {
+                std::cout << "Failed to open audio file: " << audioFiles[trackIndex] << std::endl;
+                return EXIT_FAILURE;
+              }
+
+            if( audioSrc ) {
+                audioEngine->stopSource(audioSrc);
+                audioEngine->deleteSource(audioSrc);
+                audioEngine->deleteBuffer(audioBuf);
+              }
+
+            // Prepare a playback source
+            audioSrc = audioEngine->createSource();
+            audioBuf = audioEngine->createBuffer(*audio);
+            audioEngine->bindBufferToSource(audioSrc, audioBuf);
+
+            audioEngine->playSource(audioSrc);
+            audioStartTime = std::chrono::steady_clock::now();
+            skipTrack = false;
+          }
 
         auto audioOffsetSeconds = audioEngine->sourcePlaybackOffset(audioSrc);
         auto audioWindow = engine.updateDelta();

@@ -60,11 +60,13 @@ std::shared_ptr<OpenALEngine::Source> OpenALEngine::createSource() {
 }
 
 void OpenALEngine::bindBufferToSource(std::shared_ptr<Source>& source, std::shared_ptr<Buffer>& buffer) {
+  if( !source || !buffer ) return;
   alSourcei(source->id, AL_BUFFER, buffer->id);
   checkError("Bind buffer to source");
 }
 
 void OpenALEngine::playSourceAndWait(std::shared_ptr<Source>& source) {
+  if( !source ) return;
   alSourcePlay(source->id);
   checkError("Play source and wait");
   
@@ -76,11 +78,30 @@ void OpenALEngine::playSourceAndWait(std::shared_ptr<Source>& source) {
 }
 
 void OpenALEngine::playSource(std::shared_ptr<Source>& source) {
+  if( !source ) return;
   alSourcePlay(source->id);
   checkError("Play source");
 }
 
+void OpenALEngine::stopSource(std::shared_ptr<OpenALEngine::Source>& source) {
+  if( !source ) return;
+  alSourceStop(source->id);
+  checkError("Stop source");
+}
+
+void OpenALEngine::deleteSource(std::shared_ptr<OpenALEngine::Source>& source) {
+  if( !source ) return;
+  alSourcei(source->id, AL_BUFFER, 0);
+  alDeleteSources(1, &source->id);
+}
+
+void OpenALEngine::deleteBuffer(std::shared_ptr<OpenALEngine::Buffer>& buffer) {
+  if( !buffer ) return;
+  alDeleteBuffers(1, &buffer->id);
+}
+
 bool OpenALEngine::isSourcePlaying(std::shared_ptr<Source>& source) {
+  if( !source ) return false;
   ALint state = AL_PLAYING;
   alGetSourcei(source->id, AL_SOURCE_STATE, &state);
   checkError("hasSourceFinished");
@@ -88,6 +109,7 @@ bool OpenALEngine::isSourcePlaying(std::shared_ptr<Source>& source) {
 }
 
 float OpenALEngine::sourcePlaybackOffset(std::shared_ptr<Source>& source) {
+  if( !source ) return 0.f;
   float res = 0.0f;
   alGetSourcef(source->id, AL_SEC_OFFSET, &res);
   return res;

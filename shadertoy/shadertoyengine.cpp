@@ -145,7 +145,7 @@ void ShaderToyEngine::init(std::string shaderDir)
     auto shaders = ShaderToyShaders::instance.loadShaders(shaderDir);
     // Compile/link each, store for later use
     for( auto& shader : shaders ) {
-        std::cerr << "Compiling shader: " << shader.first << "\n";
+        // std::cerr << "Compiling shader: " << shader.first << "\n";
         std::shared_ptr<ShaderProgram> toy(new ShaderProgram());
         toy->addShaderFromSrc(GL_VERTEX_SHADER, ShaderToyShaders::instance.ShaderToyBoilerPlateVert, "Shadertoy Boilerplate Vertex");
         std::string fragSrc = ShaderToyShaders::instance.ShaderToyBoilerPlateFragHeader + shader.second + ShaderToyShaders::instance.ShaderToyBoilerPlateFragFooter;
