@@ -30,4 +30,7 @@ if( MSVC )
 endif()
 
 install( DIRECTORY shaders DESTINATION ./ )
+if( MSVC )
+  install( FILES ${GLEW_INCLUDE_DIR}/../bin/Release/x64/glew32.dll DESTINATION bin )
+endif()
 

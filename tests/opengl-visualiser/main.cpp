@@ -178,7 +178,7 @@ try
     std::shared_ptr<OpenALEngine::Source> audioSrc;
     std::shared_ptr<OpenALEngine::Buffer> audioBuf;
     std::shared_ptr<Audio> audio;
-    auto trackIndex = 0;
+    auto trackIndex = 0u;
 
     auto width = 0;
     auto height = 0;

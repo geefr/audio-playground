@@ -30,7 +30,7 @@ bool Audio::openRecursive( std::string directory, std::vector<std::shared_ptr<Au
 
   for(auto& p: fs::recursive_directory_iterator(directory)) {
     // Open the file - This will fail accordingly if it's a directory or unsupported format
-    auto audio = Audio::open(p.path());
+    auto audio = Audio::open(p.path().string());
     if( audio ) {
       result = true;
       audioFiles.push_back(audio);
@@ -49,7 +49,7 @@ bool Audio::FindSupportedFiles( std::string directory, std::vector<std::string>&
 
     if( ext == ".wav" ||
         ext == ".mp3" ) {
-      audioFiles.push_back(p.path());
+      audioFiles.push_back(p.path().string());
       result = true;
       }
   }

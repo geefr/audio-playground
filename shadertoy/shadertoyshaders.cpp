@@ -21,7 +21,7 @@ std::map<std::string, std::string> ShaderToyShaders::loadShaders( std::string sh
       f.read(fragSrc.data(), size);
       if( fragSrc.empty() ) continue;
 
-      shaders[path.stem()] = fragSrc;
+      shaders[path.stem().string()] = fragSrc;
   }
 
   return shaders;
