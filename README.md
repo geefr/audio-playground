@@ -8,8 +8,8 @@ Executables can be found under tests, should be fairly self explanatory
 Should be a fairly straightfoward CMake build. Repo uses submodules under extern/ so fetch those before building.
 
 The following dependencies are needed:
+* Bundled deps - git submodule init && git submodule update to fetch
 * OpenGL
-* OpenAL
 * glm
 * glfw3
 * GLEW (When building on Windows)
