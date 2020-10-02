@@ -8,23 +8,42 @@ set( OpenGL_GL_PREFERENCE GLVND )
 
 # Locate system libraries
 find_package( OpenGL REQUIRED )
-find_package( OpenAL REQUIRED )
 find_package( glm REQUIRED )
 
 if( MSVC )
 	find_package( glew REQUIRED )
+	if(NOT GLEW_INCLUDE_DIR OR
+	   NOT GLEW_SHARED_LIBRARY_DEBUG OR
+	   NOT GLEW_SHARED_LIBRARY_RELEASE )
+	   message( FATAL_ERROR "GLEW Not found, please set GLEW_INCLUDE_DIR, GLEW_SHARED_LIBRARY_DEBUG, and GLEW_SHARED_LIBRARY_RELEASE")
+	endif()
 
 	# TODO: Hack - The binary glfw releases don't include a cmake config and windows cmake doesn't have a FindGLFW.cmake
 	# For now just include it as source
 	if(NOT GLFW_SOURCE_PATH )
-	message( FATAL_ERROR "You're building on windows, set GLFW_SOURCE_PATH to the location of glfw3's source")
+		message( FATAL_ERROR "You're building on windows, set GLFW_SOURCE_PATH to the location of glfw3's source")
 	endif()
 	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 	add_subdirectory( ${GLFW_SOURCE_PATH} ${CMAKE_CURRENT_BINARY_DIR}/glfw3 )
+	
+	# Honestly could use binaries but it's just easier for deployment doing this
+	set(ALSOFT_EXAMPLES OFF CACHE BOOL "" FORCE)
+	set(ALSOFT_UTILS OFF CACHE BOOL "" FORCE)
+	set(ALSOFT_INSTALL_AMBDEC_PRESETS OFF CACHE BOOL "" FORCE)
+	set(ALSOFT_INSTALL_CONFIG OFF CACHE BOOL "" FORCE)
+	set(ALSOFT_INSTALL_EXAMPLES OFF CACHE BOOL "" FORCE)
+	set(ALSOFT_INSTALL_HRTF_DATA OFF CACHE BOOL "" FORCE)
+	set(ALSOFT_INSTALL_UTILS OFF CACHE BOOL "" FORCE)
+	set(ALSOFT_EMBED_HRTF_DATA OFF CACHE BOOL "" FORCE)
+	set(ALSOFT_BUILD_ROUTER ON CACHE BOOL "" FORCE)
+	add_subdirectory( ${PROJECT_SOURCE_DIR}/extern/openal-soft ${CMAKE_CURRENT_BINARY_DIR}/openal-soft )	
+	set(OPENAL_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/extern/openal-soft/include")
+	set(OPENAL_LIBRARY OpenAL)
 else()
 	find_package(glfw3 REQUIRED)
+	find_package( OpenAL REQUIRED )
 	# TODO: Assuming GCC, will have flag mismatch with clang
 	set( CMAKE_CXX_FLAGS "-Werror=all -Wno-error=old-style-cast -Wno-error=unused-variable -Wno-error=unused-but-set-variable" )
 endif()
@@ -37,3 +56,4 @@ add_subdirectory( shadertoy )
 add_subdirectory( tests )
 
 install( DIRECTORY music DESTINATION . )
+install( FILES LICENSE DESTINATION . )
