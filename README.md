@@ -18,6 +18,7 @@ The following dependencies are needed:
 * Unless specified otherwise in folder/file everything is covered by the BSD licence
 * extern/dr_libs: Public domain
 * extern/kissfft: BSD/Unilicence
+* extern/openal-soft: LGPL
 * shadertoy/shaders: Shaders taken from shadertoy.com, mostly creative commons, or BSD. See header of files.
 * music: Various licences, see Readme.md in each folder
 
