@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 3.10)
 
 project(audio-playground)
 
+if( NOT CMAKE_BUILD_TYPE AND NOT MSVC )
+  set( CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE )
+  set_property( CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Release" "Debug" "MinSizeRel" "RelWithDebInfo" )
+endif()
+
 # Compiler/Tool requirements
 set( CMAKE_CXX_STANDARD 20 )
 set( OpenGL_GL_PREFERENCE GLVND )

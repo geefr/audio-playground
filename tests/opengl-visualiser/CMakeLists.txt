@@ -16,4 +16,7 @@ target_link_libraries( opengl-visualiser
 
 install( TARGETS opengl-visualiser )
 install( FILES README.md DESTINATION . )
+if( NOT MSVC )
+  install( FILES opengl-visualiser.sh DESTINATION . )
+endif()
 
