@@ -7,3 +7,6 @@
 [submodule "extern/kissfft"]
 	path = extern/kissfft
 	url = https://github.com/mborgerding/kissfft.git
+[submodule "extern/openal-soft"]
+	path = extern/openal-soft
+	url = https://github.com/kcat/openal-soft
