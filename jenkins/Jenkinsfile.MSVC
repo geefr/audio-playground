@@ -34,7 +34,8 @@ pipeline {
       }
     }
     stage('Artifacts') { steps {
-      zip zipFile: '${env.WORKSPACE}/opengl-visualiser.zip', archive: true, dir: 'install', glob: '', overwrite: true
+      powershell '''Remove-Item opengl-visualiser.zip -ErrorAction Ignore'''
+      zip zipFile: '${env.WORKSPACE}/opengl-visualiser.zip', archive: true, dir: 'install', glob: ''
     } }
   }
 
