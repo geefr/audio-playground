@@ -34,10 +34,18 @@ public:
 private:
   void toggleFullscreen( GLFWwindow* window );
   void renderUI();
+  void renderUITopBar();
+  void renderComboShader();
+  void renderUIBottomBar();
 
   ShaderToyEngine& mEngine;
   GLFWwindow* mWindow = nullptr;
   int mWidth = 800, mHeight = 600;
+
+  // UI Data
+  std::vector<std::string> mComboShaderData;
+  size_t mComboShaderDataSelectedIndex = 0u;
+
 };
 
 #endif

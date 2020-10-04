@@ -119,6 +119,7 @@ public:
      * @param toy One of the shaders from mShaders
      */
     void activeShaderToy( std::shared_ptr<ShaderProgram> toy );
+    void activateShaderToy( std::string shaderName );
 
     /// Switch to the next shader/effect
     void nextShader();

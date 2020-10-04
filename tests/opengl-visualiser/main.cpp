@@ -132,10 +132,10 @@ try
 
         // Switch the visualisation on a regular interval
         // TODO: Should be more sophisticated here, Only switch on a beat, etc
-        if( ((currentTime - shaderStartTime) / std::chrono::milliseconds(1)) / 1000.f > shaderSwitchTime ) {
-          engine.nextShader();
-          shaderStartTime = currentTime;
-        }
+//        if( ((currentTime - shaderStartTime) / std::chrono::milliseconds(1)) / 1000.f > shaderSwitchTime ) {
+//          engine.nextShader();
+//          shaderStartTime = currentTime;
+//        }
 
         // Render to the screen
         ui.render();

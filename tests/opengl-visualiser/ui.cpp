@@ -53,6 +53,7 @@ UI::UI( ShaderToyEngine& engine )
   auto& s = ImGui::GetStyle();
   s.Alpha = 0.8f;
   s.WindowRounding = 0.f;
+  s.WindowMinSize = ImVec2(1.f,1.f);
 }
 
 UI::~UI() {
@@ -86,23 +87,54 @@ void UI::renderUI() {
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
 
-  ImGui::Begin("main", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar );
-  ImGui::SetWindowPos( ImVec2(0.0, 0.0) );
-  ImGui::SetWindowSize( ImVec2(mWidth, 36) );
-  if( ImGui::Button("Test Button") ) mEngine.nextShader();
-  ImGui::SameLine();
-  ImGui::Button("Test Button");
-  ImGui::SameLine();
-  ImGui::Button("Test Button");
-  ImGui::SameLine();
-  ImGui::Button("Test Button");
-  ImGui::SameLine();
-  ImGui::Button("Test Button");
-  ImGui::SameLine();
-  ImGui::End();
+  renderUITopBar();
+  renderUIBottomBar();
 
   ImGui::Render();
   ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void UI::renderUITopBar() {
+  // Main menu bar with useful elements
+  ImGui::Begin("main", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar );
+  ImGui::SetWindowPos( ImVec2(0.0, 0.0) );
+  ImGui::SetWindowSize( ImVec2(mWidth, 36) );
+
+  renderComboShader();
+
+  ImGui::SameLine();
+
+  ImGui::End();
+}
+
+void UI::renderComboShader() {
+  // Shader selection Combo Box
+  mComboShaderData.clear();
+  for( auto& s : mEngine.mShaders ) mComboShaderData.emplace_back(s.first);
+
+  ImGui::PushItemWidth(200.f);
+  const char* currentItem = mComboShaderData[mComboShaderDataSelectedIndex].c_str();
+  if( ImGui::BeginCombo("", currentItem, ImGuiComboFlags_HeightLargest ) ) {
+      auto shaders = mEngine.mShaders;
+      for( auto i = 0u; i < mComboShaderData.size(); ++i ) {
+        auto selected = i == mComboShaderDataSelectedIndex;
+        if( ImGui::Selectable(mComboShaderData[i].c_str(), selected) ) {
+          currentItem = mComboShaderData[i].c_str();
+          mComboShaderDataSelectedIndex = i;
+        }
+        if( selected ) {
+          ImGui::SetItemDefaultFocus();
+        }
+      }
+      ImGui::EndCombo();
+  }
+  ImGui::PopItemWidth();
+
+  mEngine.activateShaderToy(mComboShaderData[mComboShaderDataSelectedIndex]);
+}
+
+void UI::renderUIBottomBar() {
+  // TODO: Status bar with framerate/other stats
 }
 
 void UI::toggleFullscreen( GLFWwindow* window ) {

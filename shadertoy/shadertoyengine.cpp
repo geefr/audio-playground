@@ -390,6 +390,10 @@ float ShaderToyEngine::updateDelta() const { return mTimeDelta; }
 
 std::vector<std::shared_ptr<ShaderAudioTexture>>& ShaderToyEngine::audioTextures() { return mAudioTextures; }
 void ShaderToyEngine::activeShaderToy( std::shared_ptr<ShaderProgram> toy ) { mActiveShaderToy = toy; }
+void ShaderToyEngine::activateShaderToy( std::string shaderName ) {
+  auto it = mShaders.find(shaderName);
+  if( it != mShaders.end() ) mActiveShaderToy = it->second;
+}
 
 void ShaderToyEngine::nextShader() {
   auto it = std::find_if(mShaders.begin(), mShaders.end(), [&](const auto& p) {
