@@ -9,6 +9,7 @@ Key bindings:
 * s - Skip track
 * x - Skip shader
 * F11 - Toggle Fullscreen
+* ESC - Quit
 
 Supported audio formats:
 * mp3
