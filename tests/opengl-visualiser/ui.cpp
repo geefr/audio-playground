@@ -1,9 +1,11 @@
 
 #include "ui.h"
 
+#include <imgui.h>
+#include <examples/imgui_impl_glfw.h>
+#include <examples/imgui_impl_opengl3.h>
+
 #include <stdexcept>
-#include <functional>
-using namespace std::placeholders;
 
 [[noreturn]] void quit(std::string msg) { throw std::runtime_error(msg); }
 
@@ -40,6 +42,17 @@ UI::UI( ShaderToyEngine& engine )
   glfwSetScrollCallback(mWindow, gScrollCallback);
 
   glfwSwapInterval(1);
+
+  // Setup ImGui
+  IMGUI_CHECKVERSION();
+  ImGui::CreateContext();
+  auto imIO = ImGui::GetIO();
+  ImGui_ImplGlfw_InitForOpenGL(mWindow, true);
+  ImGui_ImplOpenGL3_Init(nullptr);
+  ImGui::StyleColorsDark();
+  auto& s = ImGui::GetStyle();
+  s.Alpha = 0.8f;
+  s.WindowRounding = 0.f;
 }
 
 UI::~UI() {
@@ -56,6 +69,8 @@ void UI::render() {
   // Render to screen
   mEngine.render(mWidth, mHeight);
 
+  renderUI();
+
   // TODO: We need to deal with synchronisation as we're uploading the texture each frame
   // The correct way to do this is with a ringbuffer of textures, to let us be 1/2 frames
   // ahead of where the gpu is, and avoid changing texture contents during a draw
@@ -64,6 +79,30 @@ void UI::render() {
   glFinish();
 
   glfwSwapBuffers(mWindow);
+}
+
+void UI::renderUI() {
+  ImGui_ImplOpenGL3_NewFrame();
+  ImGui_ImplGlfw_NewFrame();
+  ImGui::NewFrame();
+
+  ImGui::Begin("main", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar );
+  ImGui::SetWindowPos( ImVec2(0.0, 0.0) );
+  ImGui::SetWindowSize( ImVec2(mWidth, 36) );
+  if( ImGui::Button("Test Button") ) mEngine.nextShader();
+  ImGui::SameLine();
+  ImGui::Button("Test Button");
+  ImGui::SameLine();
+  ImGui::Button("Test Button");
+  ImGui::SameLine();
+  ImGui::Button("Test Button");
+  ImGui::SameLine();
+  ImGui::Button("Test Button");
+  ImGui::SameLine();
+  ImGui::End();
+
+  ImGui::Render();
+  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void UI::toggleFullscreen( GLFWwindow* window ) {

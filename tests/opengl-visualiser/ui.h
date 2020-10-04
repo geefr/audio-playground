@@ -33,6 +33,7 @@ public:
   bool mSkipTrack = false;
 private:
   void toggleFullscreen( GLFWwindow* window );
+  void renderUI();
 
   ShaderToyEngine& mEngine;
   GLFWwindow* mWindow = nullptr;
