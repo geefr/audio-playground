@@ -13,4 +13,8 @@ add_library( imgui STATIC
   imgui/examples/imgui_impl_glfw.cpp
 )
 target_include_directories( imgui PUBLIC ${PROJECT_SOURCE_DIR}/extern/imgui )
+target_link_libraries( imgui glfw )
 
+if( MSVC )
+  target_include_directories( imgui PUBLIC ${GLEW_INCLUDE_DIR})  
+endif()
