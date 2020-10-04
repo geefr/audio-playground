@@ -34,7 +34,7 @@ pipeline {
       }
     }
     stage('Artifacts') { steps {
-      zip zipFile: 'opengl-visualiser.zip', archive: true, dir: 'install', overwrite: 'true'
+      zip zipFile: 'opengl-visualiser.zip', archive: true, dir: 'install', overwrite: 'true', glob: ''
     } }
   }
 
