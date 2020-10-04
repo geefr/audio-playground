@@ -8,11 +8,19 @@ Executables can be found under tests, should be fairly self explanatory
 Should be a fairly straightfoward CMake build. Repo uses submodules under extern/ so fetch those before building.
 
 The following dependencies are needed:
-* Bundled deps - git submodule init && git submodule update to fetch
+* Bundled deps - 'git submodule update --init --recursive' to fetch
 * OpenGL
 * glm
-* glfw3
+* glfw3 3.3+
 * GLEW (When building on Windows)
+
+Linux
+* Targetting GCC 8 or above, C++20 where available
+* glm and glfw are linked from system directories
+
+Windows
+* Targetting Visual Studio 2019, C++20
+* glm, glfw, glew are linked from external directories, CMake project should walk you through the setup
 
 # Licence
 * Unless specified otherwise in folder/file everything is covered by the BSD licence

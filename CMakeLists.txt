@@ -53,6 +53,8 @@ else()
 	set( CMAKE_CXX_FLAGS "-Werror=all -Wno-error=old-style-cast -Wno-error=unused-variable -Wno-error=unused-but-set-variable" )
 endif()
 
+add_compile_definitions( IMGUI_IMPL_OPENGL_LOADER_CUSTOM="imgui_gl_loader.h" )
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/extern )
 add_subdirectory( extern )
 
 add_subdirectory( audioprocessing )
