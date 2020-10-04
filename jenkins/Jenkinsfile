@@ -1,7 +1,7 @@
 pipeline {
   agent {
     dockerfile {
-      filename 'Dockerfile'
+      filename 'jenkins/Dockerfile'
       label 'docker-host-dev'
     }
   }
