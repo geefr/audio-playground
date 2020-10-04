@@ -83,6 +83,8 @@ void UI::render() {
 }
 
 void UI::renderUI() {
+  if( !mRenderUI ) return;
+
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
@@ -138,7 +140,7 @@ void UI::renderUIBottomBar() {
   ImGui::SetWindowPos( ImVec2(0.0, mHeight - 32) );
   ImGui::SetWindowSize( ImVec2(mWidth, 32) );
 
-  ImGui::Text("X: Next Shader S: Next song F11: Fullscreen ESC: Exit");
+  ImGui::Text("X: Next Shader | S: Next song | F11: Fullscreen | F12: Toggle UI | ESC: Exit");
 
   ImGui::End();
 }
@@ -146,6 +148,7 @@ void UI::renderUIBottomBar() {
 void UI::toggleFullscreen( GLFWwindow* window ) {
   auto currentMon = glfwGetWindowMonitor(window);
 
+  // TODO: Detect which monitor window is currently on instead of forcing primary monitor
   auto primaryMon = glfwGetPrimaryMonitor();
   int x = 0, y = 0, w = 800, h = 600;
 
@@ -181,6 +184,9 @@ void UI::keyCallback(GLFWwindow* window, int key, [[maybe_unused]] int scancode,
                 break;
             case GLFW_KEY_F11:
                 toggleFullscreen(window);
+                break;
+            case GLFW_KEY_F12:
+                mRenderUI = !mRenderUI;
                 break;
             case GLFW_KEY_S:
                 mSkipTrack = true;

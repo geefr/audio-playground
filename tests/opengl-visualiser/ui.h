@@ -43,9 +43,9 @@ private:
   int mWidth = 800, mHeight = 600;
 
   // UI Data
+  bool mRenderUI = true;
   std::vector<std::string> mComboShaderData;
   size_t mComboShaderDataSelectedIndex = 0u;
-
 };
 
 #endif
