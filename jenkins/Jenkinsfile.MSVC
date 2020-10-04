@@ -22,7 +22,7 @@ pipeline {
 
     stage('CMake') { steps {
       dir("${env.WORKSPACE}/build") {
-                bat '''cmake -G "Visual Studio 16 2019" -DCMAKE_INSTALL_PREFIX=../install ../source'''
+                bat '''cmake -G "Visual Studio 16 2019" -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_PREFIX_PATH=../deps/glm/glm-0.9.9.8/cmake/glm/ -DGLEW_INCLUDE_DIR=../deps/glew/glew-2.1.0/include/ -DGLEW_SHARED_LIBRARY_DEBUG=../deps/glew/glew-2.1.0/lib/Release/x64/glew32.lib -DGLEW_SHARED_LIBRARY_RELEASE=../deps/glew/glew-2.1.0/lib/Release/x64/glew32.lib ../source'''
       }
     } }
 
