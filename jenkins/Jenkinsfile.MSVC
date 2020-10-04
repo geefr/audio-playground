@@ -10,11 +10,13 @@ pipeline {
 
   stages {
     stage('Git Submodules') { steps {
-      powershell 'git submodule update --init --recursive'
+      dir("${env.WORKSPACE}/source") {
+        powershell 'git submodule update --init --recursive'
+      }
     } }
     stage('Windows Deps') { steps {
       dir("${env.WORKSPACE}/deps") {
-        powershell '''C:/Program Files/Git/bin/bash.exe ${env.WORKSPACE}/jenkins/msvc-download-artifacts.sh'''
+        powershell '''C:/Program Files/Git/bin/bash.exe ${env.WORKSPACE}/source/jenkins/msvc-download-artifacts.sh'''
       }
     } }
 
