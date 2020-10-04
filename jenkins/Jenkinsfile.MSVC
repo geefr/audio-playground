@@ -16,7 +16,7 @@ pipeline {
     } }
     stage('Windows Deps') { steps {
       dir("${env.WORKSPACE}/deps") {
-        bat '''bash ${env.WORKSPACE}/source/jenkins/msvc-download-artifacts.sh'''
+        bat '''bash ../source/jenkins/msvc-download-artifacts.sh'''
       }
     } }
 
