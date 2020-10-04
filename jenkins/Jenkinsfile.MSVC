@@ -11,9 +11,32 @@ pipeline {
   stages {
     stage('Dependencies') { steps {
       rtDownload (
-          serverId: ARTIFACTORY,
-          specPath: 'source/jenkins/msvc-dep-download.json'
+        serverId: 'ARTIFACTORY',
+        spec: '''{
+          "files": [
+            {
+              "pattern": "generic-local/thirdparty/glew-2.1.0.zip",
+              "target": "deps/"
+            },
+            {
+              "pattern": "generic-local/thirdparty/glfw-3.3.2.zip",
+              "target": "deps/"
+            },
+            {
+              "pattern": "generic-local/thirdparty/glm-0.9.9.8.zip",
+              "target": "deps/"
+            }
+          ]
+        }'''
       )
+ 
+    // Optional - Associate the downloaded files with the following custom build name and build number,
+    // as build dependencies.
+    // If not set, the files will be associated with the default build name and build number (i.e the
+    // the Jenkins job name and number).
+    buildName: 'holyFrog',
+    buildNumber: '42'
+)
       powershell 'git submodule update --init --recursive'
     } }
 
