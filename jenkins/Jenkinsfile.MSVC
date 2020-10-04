@@ -34,10 +34,7 @@ pipeline {
       }
     }
     stage('Artifacts') {
-      steps {
-        bat '''bash -c "zip -r opengl-visualiser.zip install/*"'''
-        archiveArtifacts artifacts: 'opengl-visualiser.zip', fingerprint: true, onlyIfSuccessful: true
-      }
+      zip archive: true, dir: 'install/', glob: '', overwrite: true, zipFile: 'opengl-visualiser.zip'
     }
   }
 
