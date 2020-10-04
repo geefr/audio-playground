@@ -15,7 +15,7 @@ pipeline {
       sh 'git submodule update --init --recursive'
     } }
     stage('CMake') { steps {
-      dir("${env.WORKSPACE}/QBeat/build") {
+      dir("${env.WORKSPACE}/build") {
         sh "cmake -DCMAKE_INSTALL_PREFIX=${env.WORKSPACE}/install ${env.WORKSPACE}/"
       }
     } }
