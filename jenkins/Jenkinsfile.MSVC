@@ -16,7 +16,7 @@ pipeline {
     } }
     stage('Windows Deps') { steps {
       dir("${env.WORKSPACE}/deps") {
-        powershell '''C:/Program Files/Git/bin/bash.exe ${env.WORKSPACE}/source/jenkins/msvc-download-artifacts.sh'''
+        powershell '''C:/Program\ Files/Git/bin/bash.exe ${env.WORKSPACE}/source/jenkins/msvc-download-artifacts.sh'''
       }
     } }
 
