@@ -29,16 +29,16 @@ pipeline {
     stage('Build') {
       steps {
         dir("${env.WORKSPACE}/build") {
-          bat '''cmake --build .'''
+          bat '''cmake --build . --target install'''
         }
       }
     }
-    //    stage('Artifacts') {
-    //      steps {
-    //          bat '''tar -cvzf OSGLauncher.tar.gz install/*'''
-    //archiveArtifacts artifacts: 'OSGLauncher.tar.gz', fingerprint: true, onlyIfSuccessful: true
-    //      }
-    //    }
+    stage('Artifacts') {
+      steps {
+        bat '''bash -c "zip -r opengl-visualiser.zip install/*"'''
+        archiveArtifacts artifacts: 'opengl-visualiser.zip', fingerprint: true, onlyIfSuccessful: true
+      }
+    }
   }
 
   post {
