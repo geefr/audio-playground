@@ -4,6 +4,7 @@
 #include "audiodrmp3.h"
 
 #include <cstring>
+#include <algorithm>
 #include <filesystem>
 namespace fs = std::filesystem;
 
