@@ -29,7 +29,7 @@ pipeline {
     stage('Build') {
       steps {
         dir("${env.WORKSPACE}/build") {
-          bat '''cmake --build . --target install'''
+          bat '''cmake --build . --target install --config Release'''
         }
       }
     }
