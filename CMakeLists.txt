@@ -47,6 +47,8 @@ if( MSVC )
 	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 	add_subdirectory( ${GLFW_SOURCE_PATH} ${CMAKE_CURRENT_BINARY_DIR}/glfw3 )
 	
+	# Auto install vc runtime
+	include(InstallRequiredSystemLibraries)
 else()
 	find_package(glfw3 REQUIRED)
 	# TODO: Assuming GCC, will have flag mismatch with clang
