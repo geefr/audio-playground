@@ -15,3 +15,7 @@ add_library( audioprocessing STATIC
   )
 
 target_link_libraries( audioprocessing PUBLIC kissfft )
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  target_link_libraries( audioprocessing PUBLIC stdc++fs )
+endif()

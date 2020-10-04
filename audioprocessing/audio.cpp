@@ -4,23 +4,58 @@
 #include "audiodrmp3.h"
 
 #include <cstring>
+#include <algorithm>
 #include <filesystem>
 namespace fs = std::filesystem;
 
-std::unique_ptr<Audio> Audio::open( std::string filename ) {
+std::shared_ptr<Audio> Audio::open( std::string filename ) {
   // Helper method for creating from file
   // TODO: Could have child classes auto-register against a file type
   auto path = fs::path(filename);
+  if( fs::is_directory(path) ) return {};
+
   auto ext = path.extension();
 
   if( ext == ".wav" ) {
-    return std::unique_ptr<Audio>(new AudioDrWav(filename));
+    return std::shared_ptr<Audio>(new AudioDrWav(filename));
   }
   else if(ext == ".mp3") {
-    return std::unique_ptr<Audio>(new AudioDrMp3(filename));
+    return std::shared_ptr<Audio>(new AudioDrMp3(filename));
   }
 
   return {};
+}
+
+bool Audio::openRecursive( std::string directory, std::vector<std::shared_ptr<Audio>>& audioFiles ) {
+  bool result = false;
+
+  for(auto& p: fs::recursive_directory_iterator(directory)) {
+    // Open the file - This will fail accordingly if it's a directory or unsupported format
+    auto audio = Audio::open(p.path().string());
+    if( audio ) {
+      result = true;
+      audioFiles.push_back(audio);
+    }
+  }
+
+  return result;
+}
+
+bool Audio::FindSupportedFiles( std::string directory, std::vector<std::string>& audioFiles ) {
+  bool result = false;
+
+  for(auto& p: fs::recursive_directory_iterator(directory)) {
+    // Open the file - This will fail accordingly if it's a directory or unsupported format
+    auto ext = p.path().extension();
+
+    if( ext == ".wav" ||
+        ext == ".mp3" ) {
+      audioFiles.push_back(p.path().string());
+      result = true;
+      }
+  }
+
+  return result;
 }
 
 std::string Audio::filename() const { return mFilename; }

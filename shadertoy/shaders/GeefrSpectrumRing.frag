@@ -50,7 +50,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     
     // Tile
     // uv = vec2(fract(uv.x * 4.0), fract(uv.y * 4.0));
-    vec2 circleOrigin = vec2(0.5, 0.4);
+    vec2 circleOrigin = vec2(0.5, 0.45);
     // circleOrigin = vec2(fract(circleOrigin.x * 4.0), fract(circleOrigin.y * 4.0));
     
     // Sample fft for freq around circle outer
@@ -108,11 +108,10 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     }
     
     // Background aliasing pattern
-    float ampR = distance((uv / 2.0), vec2(channel0AmplitudeAtX, channel0AmplitudeAtY));
-    //float ampG = distance((vec2(fract(iTime * uv.x), uv.y) / 2.0), vec2(channel0AmplitudeAtX, channel0AmplitudeAtY));
-    //float ampB = distance((vec2(uv.x, fract(iTime * uv.y)) / 2.0), vec2(channel0AmplitudeAtX, channel0AmplitudeAtY));
-    float ampG = distance(uv / 4.0, vec2(channel0AmplitudeAtX, channel0AmplitudeAtY));
-    float ampB = distance(uv / 8.0, vec2(channel0AmplitudeAtX, channel0AmplitudeAtY));
-    fragColor = vec4(ampR, ampG, ampB, 1.0);
+    float ampR = distance((uv / 1.0), vec2(channel0AmplitudeAtX, channel0AmplitudeAtY));
+    float ampG = distance(uv / 2.0, vec2(channel0AmplitudeAtX, channel0AmplitudeAtY));
+    float ampB = distance(uv / 4.0, vec2(channel0AmplitudeAtX, channel0AmplitudeAtY));
+    
+    fragColor = vec4(ampR * 0.5, ampG * 0.5, ampB * 0.5, 1.0);
     return;
 }
