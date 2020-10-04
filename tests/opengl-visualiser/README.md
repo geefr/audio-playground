@@ -8,6 +8,7 @@ Shaders will be loaded from the installatin's shader directory
 Key bindings:
 * s - Skip track
 * x - Skip shader
+* F11 - Toggle Fullscreen
 
 Supported audio formats:
 * mp3

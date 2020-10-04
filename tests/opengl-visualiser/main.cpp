@@ -22,6 +22,33 @@ bool skipTrack = false;
     throw std::runtime_error(msg);
 }
 
+void toggleFullscreen( GLFWwindow* window ) {
+  auto currentMon = glfwGetWindowMonitor(window);
+
+  auto primaryMon = glfwGetPrimaryMonitor();
+  int x = 0, y = 0, w = 800, h = 600;
+
+  if( currentMon ) {
+    // Disable fullscreen
+    if( primaryMon ) {
+      int mx = 0, my = 0;
+      glfwGetMonitorPos(primaryMon, &mx, &my);
+      glfwGetMonitorWorkarea(primaryMon, &x, &y, &w, &h);
+      x = mx + (w / 2) - 400;
+      y = my + (h / 2) - 300;
+      w = 800;
+      h = 600;
+    }
+    glfwSetWindowMonitor(window, nullptr, x, y, w, h, GLFW_DONT_CARE);
+  } else {
+    // Enable fullscreen
+    if( primaryMon ) {
+      glfwGetMonitorWorkarea(primaryMon, &x, &y, &w, &h);
+      glfwSetWindowMonitor(window, primaryMon, x, y, w, h, GLFW_DONT_CARE);
+    }
+  }
+}
+
 void errorCallback(int error, const char* description)
 {
     std::cerr << "GLFW Error: " << error << ": " << description << std::endl;
@@ -35,6 +62,9 @@ void keyCallback(GLFWwindow* window, int key, [[maybe_unused]] int scancode, int
         {
             case GLFW_KEY_ESCAPE:
                 glfwSetWindowShouldClose(window, GLFW_TRUE);
+                break;
+            case GLFW_KEY_F11:
+                toggleFullscreen(window);
                 break;
             // case GLFW_KEY_1:
             //     viewRotDelta[0] = M_PI / 360.0f;
