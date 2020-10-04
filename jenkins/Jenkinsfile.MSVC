@@ -10,19 +10,8 @@ pipeline {
 
   stages {
     stage('Dependencies') { steps {
-      rtDownload (
-        serverId: 'ARTIFACTORY',
-        spec: '''{
-          "files": [
-            {
-              "pattern": "generic-local/thirdparty/*.zip",
-              "target": "deps/"
-            }
-          ]
-        }'''
-      )
-
       powershell 'git submodule update --init --recursive'
+      powershell 'C:/Program Files/Git/bin/bash.exe msvc-download-artifacts.sh'
     } }
 
     stage('CMake') { steps {
