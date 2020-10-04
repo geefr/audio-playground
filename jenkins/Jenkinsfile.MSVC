@@ -7,9 +7,6 @@ pipeline {
       checkoutToSubdirectory('source')
       timeout(time: 1, unit: 'HOURS')
   }
-  environment {
-    ARTIFACTORY = "http://service-docker:8081"
-  }
 
   stages {
     stage('Dependencies') { steps {
@@ -17,6 +14,7 @@ pipeline {
           serverId: ARTIFACTORY,
           specPath: 'source/jenkins/msvc-dep-download.json'
       )
+      powershell 'git submodule update --init --recursive'
     } }
 
     stage('CMake') { steps {
