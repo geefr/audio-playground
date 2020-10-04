@@ -96,7 +96,7 @@ void UI::renderUI() {
 
 void UI::renderUITopBar() {
   // Main menu bar with useful elements
-  ImGui::Begin("main", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar );
+  ImGui::Begin("header", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar );
   ImGui::SetWindowPos( ImVec2(0.0, 0.0) );
   ImGui::SetWindowSize( ImVec2(mWidth, 36) );
 
@@ -134,7 +134,13 @@ void UI::renderComboShader() {
 }
 
 void UI::renderUIBottomBar() {
-  // TODO: Status bar with framerate/other stats
+  ImGui::Begin("footer", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar );
+  ImGui::SetWindowPos( ImVec2(0.0, mHeight - 32) );
+  ImGui::SetWindowSize( ImVec2(mWidth, 32) );
+
+  ImGui::Text("X: Next Shader S: Next song F11: Fullscreen ESC: Exit");
+
+  ImGui::End();
 }
 
 void UI::toggleFullscreen( GLFWwindow* window ) {
@@ -180,7 +186,9 @@ void UI::keyCallback(GLFWwindow* window, int key, [[maybe_unused]] int scancode,
                 mSkipTrack = true;
                 break;
             case GLFW_KEY_X:
-                mEngine.nextShader();
+                mComboShaderDataSelectedIndex++;
+                if( mComboShaderDataSelectedIndex >= mComboShaderData.size() ) mComboShaderDataSelectedIndex = 0;
+                mEngine.activateShaderToy(mComboShaderData[mComboShaderDataSelectedIndex]);
                 break;
         }
     }
