@@ -5,6 +5,8 @@ include_directories(
 
 add_executable( opengl-visualiser
   main.cpp
+  ui.h
+  ui.cpp
 )
 
 target_link_libraries( opengl-visualiser
@@ -12,6 +14,7 @@ target_link_libraries( opengl-visualiser
   openalengine
   shadertoy
   glfw
+  imgui
 )
 
 install( TARGETS opengl-visualiser )

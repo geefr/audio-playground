@@ -4,6 +4,8 @@
 #include <chrono>
 #include <random>
 
+#include "ui.h"
+
 #include "openalengine/openalengine.h"
 #include "audioprocessing/audio.h"
 #include "shadertoy/shadertoyengine.h"
@@ -11,120 +13,7 @@
 // TODO: These are placeholder shaders - should be talking to the shadertoy rest api to fetch these
 #include "shadertoy/shadertoyshaders.h"
 
-#define GL_GLEXT_PROTOTYPES
-#include <GLFW/glfw3.h>
-
 ShaderToyEngine engine;
-bool skipTrack = false;
-
-[[noreturn]] void quit(std::string msg)
-{
-    throw std::runtime_error(msg);
-}
-
-void toggleFullscreen( GLFWwindow* window ) {
-  auto currentMon = glfwGetWindowMonitor(window);
-
-  auto primaryMon = glfwGetPrimaryMonitor();
-  int x = 0, y = 0, w = 800, h = 600;
-
-  if( currentMon ) {
-    // Disable fullscreen
-    if( primaryMon ) {
-      int mx = 0, my = 0;
-      glfwGetMonitorPos(primaryMon, &mx, &my);
-      glfwGetMonitorWorkarea(primaryMon, &x, &y, &w, &h);
-      x = mx + (w / 2) - 400;
-      y = my + (h / 2) - 300;
-      w = 800;
-      h = 600;
-    }
-    glfwSetWindowMonitor(window, nullptr, x, y, w, h, GLFW_DONT_CARE);
-  } else {
-    // Enable fullscreen
-    if( primaryMon ) {
-      glfwGetMonitorWorkarea(primaryMon, &x, &y, &w, &h);
-      glfwSetWindowMonitor(window, primaryMon, x, y, w, h, GLFW_DONT_CARE);
-    }
-  }
-}
-
-void errorCallback(int error, const char* description)
-{
-    std::cerr << "GLFW Error: " << error << ": " << description << std::endl;
-}
-
-void keyCallback(GLFWwindow* window, int key, [[maybe_unused]] int scancode, int action, [[maybe_unused]] int modes)
-{
-    if( action == GLFW_PRESS )
-    {
-        switch(key)
-        {
-            case GLFW_KEY_ESCAPE:
-                glfwSetWindowShouldClose(window, GLFW_TRUE);
-                break;
-            case GLFW_KEY_F11:
-                toggleFullscreen(window);
-                break;
-            // case GLFW_KEY_1:
-            //     viewRotDelta[0] = M_PI / 360.0f;
-            //     break;
-            case GLFW_KEY_S:
-                skipTrack = true;
-                break;
-            case GLFW_KEY_X:
-                engine.nextShader();
-                break;
-        }
-    }
-    else if( action == GLFW_RELEASE )
-    {
-        switch(key)
-        {
-            // case GLFW_KEY_1:
-            // case GLFW_KEY_2:
-            //     viewRotDelta[0] = 0.0f;
-            //     break;
-        }
-    }
-}
-
-void mouseButtonCallback(GLFWwindow* window, int button, int action,[[maybe_unused]]  int mods)
-{
-    if( action != GLFW_PRESS ) return;
-
-    double cx, cy;
-    glfwGetCursorPos(window, &cx, &cy);
-/*
-    float x = static_cast<float>(cx) / engine.windowSize[0];
-    float y = static_cast<float>(cy) / engine.windowSize[1];
-
-    x = engine.viewExtent[0] + (x * (engine.viewExtent[1] - engine.viewExtent[0]));
-    y = engine.viewExtent[2] + (y * (engine.viewExtent[3] - engine.viewExtent[2]));
-
-    switch(button)
-    {
-        case GLFW_MOUSE_BUTTON_1:
-            engine.viewCenter[0] += x;
-            engine.viewCenter[1] += y;
-            break;
-    }
-*/
-}
-
-void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
-{
-    yoffset *= -1.0f;
-    if( yoffset < 0.0 ) yoffset = 1.0 - (-yoffset / 20.0);
-    else yoffset = 1.0 + (yoffset / 20.0);
-
-    /*
-    engine.viewExtent[0] *= static_cast<float>(yoffset);
-    engine.viewExtent[1] *= static_cast<float>(yoffset);
-    engine.viewExtent[2] *= static_cast<float>(yoffset);
-    engine.viewExtent[3] *= static_cast<float>(yoffset);
-    */
-}
 
 /// Select a random song to play
 /// TODO: Encapsulate in a better place, typedef the map, do this in the background, etc
@@ -151,22 +40,7 @@ try
     // Audio playback engine - OpenAL is overkill for what's needed, but simple to use
     std::unique_ptr<OpenALEngine> audioEngine(new OpenALEngine());
 
-    glfwSetErrorCallback(errorCallback);
-    if( !glfwInit() ) quit("Failed to init glfw");
-
-    // Let's try for GL 3.3, should be fine on almost everything now (it is 2020 after all)
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_SAMPLES, 8);
-    auto window = glfwCreateWindow(800, 600, "OpenGL-Visualiser", nullptr, nullptr);
-    if( !window ) quit("Failed to init window");
-
-    glfwMakeContextCurrent(window);
-    glfwSetKeyCallback(window, keyCallback);
-    glfwSetMouseButtonCallback(window, mouseButtonCallback);
-    glfwSetScrollCallback(window, scrollCallback);
-
-    glfwSwapInterval(1);
+    UI ui(engine);
 
     // Setup the rendering engine
     std::string shaderDir = "../shaders";
@@ -210,12 +84,10 @@ try
     std::shared_ptr<Audio> audio;
     auto trackIndex = 0u;
 
-    auto width = 0;
-    auto height = 0;
-    while(!glfwWindowShouldClose(window))
+    while(!ui.shouldClose())
     {
-        // Pet the event doggie so it barks at our callbacks
-        glfwPollEvents();
+        // Handle input events, ui actions
+        ui.pollEvents();
 
         auto currentTime = std::chrono::steady_clock::now();
 
@@ -223,7 +95,7 @@ try
         engine.update();
 
         // Ensure the sound is playing, loop if it's not
-        if( !audioEngine->isSourcePlaying(audioSrc) || skipTrack ) {
+        if( !audioEngine->isSourcePlaying(audioSrc) || ui.mSkipTrack ) {
             // TODO: Should run OpenAL in another thread if possible - It's fairly high cpu usage, and at the moment the graphics will stall when changing tracks
             // TODO: This section really needs some work - openAL is a poor choice for just playing music, and this is pretty ugly here
             // auto audioIt = shuffleMusic(audioFiles);
@@ -249,7 +121,7 @@ try
 
             audioEngine->playSource(audioSrc);
             audioStartTime = std::chrono::steady_clock::now();
-            skipTrack = false;
+            ui.mSkipTrack = false;
           }
 
         auto audioOffsetSeconds = audioEngine->sourcePlaybackOffset(audioSrc);
@@ -258,9 +130,6 @@ try
         // Update audio input to the renderer
         audioTex0->setAudio( *audio, audioOffsetSeconds, audioOffsetSeconds + audioWindow );
 
-        // Hack, should use framebuffersizecallback ;)
-        glfwGetFramebufferSize(window, &width, &height);
-
         // Switch the visualisation on a regular interval
         // TODO: Should be more sophisticated here, Only switch on a beat, etc
         if( ((currentTime - shaderStartTime) / std::chrono::milliseconds(1)) / 1000.f > shaderSwitchTime ) {
@@ -268,21 +137,10 @@ try
           shaderStartTime = currentTime;
         }
 
-        // Render to screen
-        engine.render(width, height);
-
-        // TODO: We need to deal with synchronisation as we're uploading the texture each frame
-        // The correct way to do this is with a ringbuffer of textures, to let us be 1/2 frames
-        // ahead of where the gpu is, and avoid changing texture contents during a draw
-        // To get this working quickly however we'll just wait for the pipeline to be idle
-        glFlush();
-        glFinish();
-
-        glfwSwapBuffers(window);
+        // Render to the screen
+        ui.render();
     }
 
-    glfwDestroyWindow(window);
-    glfwTerminate();
 }
 catch(const std::exception& e)
 {
