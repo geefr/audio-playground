@@ -34,7 +34,7 @@ pipeline {
       }
     }
     stage('Artifacts') { steps {
-      zip zipFile: '${env.WORKSPACE}/opengl-visualiser-${env.BUILDNUMBER}.zip', archive: true, dir: '${env.WORKSPACE}/install', glob: ''
+      zip zipFile: '${env.WORKSPACE}/opengl-visualiser-${env.BUILDNUMBER}.zip', archive: true, dir: 'install', glob: ''
     } }
   }
 
