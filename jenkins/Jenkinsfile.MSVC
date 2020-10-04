@@ -11,7 +11,9 @@ pipeline {
   stages {
     stage('Dependencies') { steps {
       powershell 'git submodule update --init --recursive'
-      powershell 'C:/Program Files/Git/bin/bash.exe msvc-download-artifacts.sh'
+      dir("${env.WORKSPACE}/deps") {
+        powershell '''C:/Program Files/Git/bin/bash.exe ${env.WORKSPACE}/jenkins/msvc-download-artifacts.sh'''
+      }
     } }
 
     stage('CMake') { steps {
