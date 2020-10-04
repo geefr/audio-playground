@@ -17,7 +17,8 @@ target_link_libraries( opengl-visualiser
   imgui
 )
 
-install( TARGETS opengl-visualiser )
+install( TARGETS opengl-visualiser 
+         RUNTIME DESTINATION bin )
 install( FILES README.md DESTINATION . )
 if( NOT MSVC )
   install( FILES opengl-visualiser.sh DESTINATION . )
