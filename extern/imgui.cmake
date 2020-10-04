@@ -1,6 +1,5 @@
 
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
-add_compile_definitions( IMGUI_IMPL_OPENGL_LOADER_CUSTOM="imgui_gl_loader.h" )
 
 add_library( imgui STATIC
   imgui/imgui.h

@@ -11,5 +11,6 @@ target_link_libraries( audio-stats
   audioprocessing
 )
 
-install( TARGETS audio-stats )
+install( TARGETS audio-stats 
+         RUNTIME DESTINATION bin )
 
