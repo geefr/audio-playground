@@ -1,0 +1,48 @@
+pipeline {
+  agent {
+    label 'MSVC'
+  }
+  options {
+    buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '30'))
+      checkoutToSubdirectory('source')
+      timeout(time: 1, unit: 'HOURS')
+  }
+
+  stages {
+    stage('Git Submodules') { steps {
+      dir("${env.WORKSPACE}/source") {
+        powershell 'git submodule update --init --recursive'
+      }
+    } }
+    stage('Windows Deps') { steps {
+      dir("${env.WORKSPACE}/deps") {
+        bat '''bash ../source/jenkins/msvc-download-artifacts.sh'''
+      }
+    } }
+
+    stage('CMake') { steps {
+      dir("${env.WORKSPACE}/build") {
+                bat '''cmake -G "Visual Studio 16 2019" -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_PREFIX_PATH=../deps/glm/glm-0.9.9.8/cmake/glm/ -DGLEW_INCLUDE_DIR=../deps/glew/glew-2.1.0/include/ -DGLEW_SHARED_LIBRARY_DEBUG=../deps/glew/glew-2.1.0/lib/Release/x64/glew32.lib -DGLEW_SHARED_LIBRARY_RELEASE=../deps/glew/glew-2.1.0/lib/Release/x64/glew32.lib -DGLFW_SOURCE_PATH=../deps/glfw/glfw-3.3.2/ ../source'''
+      }
+    } }
+
+    stage('Build') {
+      steps {
+        dir("${env.WORKSPACE}/build") {
+          bat '''cmake --build . --target install --config Release'''
+        }
+      }
+    }
+    stage('Artifacts') { steps {
+      powershell '''Remove-Item opengl-visualiser.zip -ErrorAction Ignore'''
+      zip zipFile: 'opengl-visualiser.zip', archive: true, dir: 'install', glob: ''
+    } }
+  }
+
+  post {
+    always {
+      emailext attachLog: true, body: '''${DEFAULT_CONTENT}''', compressLog: true, recipientProviders: [[$class: 'CulpritsRecipientProvider']], subject: '${DEFAULT_SUBJECT}', to: '${DEFAULT_RECIPIENTS}'
+    }
+  }
+}
+
