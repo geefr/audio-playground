@@ -20,7 +20,7 @@ add_library( shadertoy STATIC
   shaderaudiotexture.cpp
   )
 
-target_link_libraries( shadertoy PUBLIC OpenGL::GL audioprocessing glfw )
+target_link_libraries( shadertoy PUBLIC OpenGL::GL audioprocessing glfw GLEW::GLEW )
 if( MSVC )
   target_include_directories( shadertoy PUBLIC 
     ${GLEW_INCLUDE_DIR}
@@ -30,7 +30,7 @@ if( MSVC )
 endif()
 
 install( DIRECTORY shaders DESTINATION ./ )
-if( MSVC )
-  install( FILES "${GLEW_INCLUDE_DIR}/../bin/Release/x64/glew32.dll" DESTINATION bin )
-endif()
+# if( MSVC )
+#   install( FILES "${GLEW_INCLUDE_DIR}/../bin/Release/x64/glew32.dll" DESTINATION bin )
+# endif()
 

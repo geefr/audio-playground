@@ -1,0 +1,11 @@
+{
+  "name": "geefr-audio-playground",
+  "version-string": "1.0.0",
+  "dependencies": [
+    "fmt",
+    "opengl",
+    "glm",
+    "glfw3",
+    "glew"
+  ]
+}

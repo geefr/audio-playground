@@ -7,6 +7,10 @@ if( NOT CMAKE_BUILD_TYPE AND NOT MSVC )
   set_property( CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Release" "Debug" "MinSizeRel" "RelWithDebInfo" )
 endif()
 
+if( MSVC )
+  include(InstallRequiredSystemLibraries)
+endif()
+
 # Compiler/Tool requirements
 set( CMAKE_CXX_STANDARD 20 )
 set( OpenGL_GL_PREFERENCE GLVND )
@@ -31,21 +35,7 @@ set(OPENAL_LIBRARY OpenAL)
 
 if( MSVC )
 	find_package( glew REQUIRED )
-	if(NOT GLEW_INCLUDE_DIR OR
-	   NOT GLEW_SHARED_LIBRARY_DEBUG OR
-	   NOT GLEW_SHARED_LIBRARY_RELEASE )
-	   message( FATAL_ERROR "GLEW Not found, please set GLEW_INCLUDE_DIR, GLEW_SHARED_LIBRARY_DEBUG, and GLEW_SHARED_LIBRARY_RELEASE")
-	endif()
-
-	# TODO: Hack - The binary glfw releases don't include a cmake config and windows cmake doesn't have a FindGLFW.cmake
-	# For now just include it as source
-	if(NOT GLFW_SOURCE_PATH )
-		message( FATAL_ERROR "You're building on windows, set GLFW_SOURCE_PATH to the location of glfw3's source")
-	endif()
-	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-	add_subdirectory( ${GLFW_SOURCE_PATH} ${CMAKE_CURRENT_BINARY_DIR}/glfw3 )
+	find_package( glfw3 REQUIRED )
 	
 	# Auto install vc runtime
 	include(InstallRequiredSystemLibraries)
